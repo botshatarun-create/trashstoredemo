@@ -1,10 +1,5 @@
 package trashstore;
 
-public class TrashStoreApplication {
-    
-}
-package trashstore;
-
 import jakarta.persistence.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;

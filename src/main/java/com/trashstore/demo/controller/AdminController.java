@@ -28,6 +28,12 @@ public class AdminController {
         this.itemRepo = itemRepo;
     }
 
+    // Dedicated admin login page
+    @GetMapping("/login")
+    public String adminLoginPage() {
+        return "admin-login";
+    }
+
     private User getUser(Authentication auth) {
         return userRepo.findByUsername(auth.getName()).orElseThrow();
     }
@@ -35,8 +41,9 @@ public class AdminController {
     @GetMapping
     public String dashboard(Model model, Authentication auth) {
         User user = getUser(auth);
+        // Non-admin users are redirected to the admin login page
         if (!user.isAdmin())
-            return "redirect:/";
+            return "redirect:/admin/login?accessDenied=true";
 
         List<Order> orders = orderRepo.findAll();
         long totalUsers = userRepo.count();
@@ -61,7 +68,7 @@ public class AdminController {
             RedirectAttributes redirect) {
         User user = getUser(auth);
         if (!user.isAdmin())
-            return "redirect:/";
+            return "redirect:/admin/login?accessDenied=true";
 
         orderRepo.findById(id).ifPresent(order -> {
             order.setStatus(status.toUpperCase());

@@ -7,88 +7,270 @@
     <title>Trash Scanner — Trash Store</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
     <style>
-        .trash-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 0.85rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .trash-card {
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 1.25rem 0.75rem;
+        .scanner-wrap {
+            max-width: 560px;
+            margin: 2rem auto;
             text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
         }
 
-        .trash-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .trash-card.selected {
-            border-color: var(--accent);
-            background: var(--accent-light);
-        }
-
-        .trash-card.selected::after {
-            content: '✓';
-            position: absolute;
-            top: 0.4rem;
-            right: 0.4rem;
-            background: var(--accent);
-            color: #fff;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
+        .scanner-box {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 0 auto 2rem;
+            border-radius: 24px;
+            background: var(--bg-card);
+            border: 2px dashed var(--border);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 700;
+            overflow: hidden;
+            transition: border-color 0.3s ease;
         }
 
-        .trash-card {
-            position: relative;
+        .scanner-box.scanning {
+            border-color: var(--accent);
+            border-style: solid;
         }
 
-        .trash-icon {
-            font-size: 2rem;
-            margin-bottom: 0.4rem;
+        .scanner-beam {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(to right, transparent, var(--accent), transparent);
+            top: 0;
+            opacity: 0;
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--accent);
+        }
+
+        .scanner-box.scanning .scanner-beam {
+            opacity: 1;
+            animation: beam 1.2s ease-in-out infinite;
+        }
+
+        @keyframes beam {
+            0% {
+                top: 0%;
+            }
+
+            50% {
+                top: calc(100% - 3px);
+            }
+
+            100% {
+                top: 0%;
+            }
+        }
+
+        .scanner-icon {
+            font-size: 4rem;
             display: block;
+            transition: transform 0.3s ease;
         }
 
-        .trash-name {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 0.2rem;
+        .scanner-box.scanning .scanner-icon {
+            animation: pulse-icon 1.2s ease-in-out infinite;
         }
 
-        .trash-kg {
-            font-size: 0.75rem;
-            font-weight: 700;
+        @keyframes pulse-icon {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .scanner-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .scanner-box.scanning .scanner-label {
             color: var(--accent);
         }
 
-        .scan-panel {
+        .scanner-corners span {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: var(--accent);
+            border-style: solid;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .scanner-box.scanning .scanner-corners span {
+            opacity: 1;
+        }
+
+        .scanner-corners span:nth-child(1) {
+            top: 8px;
+            left: 8px;
+            border-width: 3px 0 0 3px;
+        }
+
+        .scanner-corners span:nth-child(2) {
+            top: 8px;
+            right: 8px;
+            border-width: 3px 3px 0 0;
+        }
+
+        .scanner-corners span:nth-child(3) {
+            bottom: 8px;
+            left: 8px;
+            border-width: 0 0 3px 3px;
+        }
+
+        .scanner-corners span:nth-child(4) {
+            bottom: 8px;
+            right: 8px;
+            border-width: 0 3px 3px 0;
+        }
+
+        .trash-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .trash-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.4rem 0.85rem;
+            border-radius: 50px;
+            border: 1.5px solid var(--border);
+            background: var(--bg-card);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: var(--text-secondary);
+            user-select: none;
+        }
+
+        .trash-pill:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .trash-pill.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .trash-pill .pill-kg {
+            font-size: 0.7rem;
+            opacity: 0.8;
+        }
+
+        .scan-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 0.85rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .scan-btn:hover:not(:disabled) {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3);
+        }
+
+        .scan-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--accent-light);
+            border: 1px solid var(--border-accent);
+            color: var(--accent);
+            font-size: 1rem;
+            font-weight: 800;
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            margin-top: 1rem;
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.7);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .recent-scans {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
-            padding: 1.75rem;
-            max-width: 440px;
-            margin: 0 auto;
-            box-shadow: var(--shadow-sm);
+            padding: 1.25rem;
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .recent-scans h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .scan-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            padding: 0.35rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .scan-row:last-child {
+            border-bottom: none;
+        }
+
+        .scan-row .earn {
+            color: var(--accent);
+            font-weight: 700;
         }
     </style>
 </head>
 
 <body>
-
     <nav class="navbar" id="navbar">
         <a href="/" class="navbar-brand"><span class="logo-icon">♻</span> Trash<span>Store</span></a>
         <ul class="navbar-links">
@@ -96,10 +278,10 @@
             <li><a href="/shop">Shop</a></li>
             <li><a href="/trash-scan" class="active">Scan Trash</a></li>
             <li><a href="/orders">Orders</a></li>
-
         </ul>
         <div class="navbar-right">
-            <div class="trash-balance">♻ <span th:text="${user.trashBalance} + ' kg'">0kg</span></div>
+            <div class="trash-balance">♻ <span id="live-balance" th:text="${user.trashBalance} + ' kg'">0 kg</span>
+            </div>
             <a href="/cart" class="cart-btn">🛒</a>
             <form th:action="@{/logout}" method="post" style="margin:0;">
                 <button type="submit" class="btn btn-outline btn-sm">Sign Out</button>
@@ -109,128 +291,190 @@
 
     <div class="page-header">
         <h1>Trash <span>Scanner</span></h1>
-        <p>Deposit recyclables to earn kg balance — then spend it in the store!</p>
+        <p>Pick a trash type, hit Scan, and watch your balance grow instantly</p>
     </div>
 
     <section class="section" style="padding-top:1.5rem;">
         <div th:if="${success}"
-            style="background:var(--accent-light);border:1px solid var(--border-accent);color:var(--accent);padding:0.85rem 1rem;border-radius:var(--radius-sm);margin-bottom:1.5rem;font-size:0.875rem;"
+            style="background:var(--accent-light);border:1px solid var(--border-accent);color:var(--accent);padding:0.75rem 1rem;border-radius:var(--radius-sm);margin-bottom:1rem;text-align:center;font-weight:600;"
             th:text="${success}"></div>
-        <div th:if="${error}"
-            style="background:#fee2e2;border:1px solid #fecaca;color:var(--accent-red);padding:0.85rem 1rem;border-radius:var(--radius-sm);margin-bottom:1.5rem;font-size:0.875rem;"
-            th:text="${error}"></div>
 
-        <!-- Current Balance -->
-        <div style="text-align:center;margin-bottom:2rem;">
-            <div
-                style="display:inline-flex;align-items:center;gap:0.4rem;background:var(--accent-light);color:var(--accent);padding:0.5rem 1.25rem;border-radius:50px;font-size:0.9rem;font-weight:700;border:1px solid var(--border-accent);">
-                ♻ Balance: <span th:text="${user.trashBalance} + ' kg'">0 kg</span>
-            </div>
-        </div>
+        <div class="scanner-wrap">
 
-        <!-- Step 1: Select Trash Type -->
-        <div style="margin-bottom:0.75rem;">
-            <h2 style="font-size:1rem;font-weight:700;color:var(--text-primary);">Step 1: Select Trash Type</h2>
-            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;">Pick the category of recyclable
-                you're depositing</p>
-        </div>
-        <div class="trash-grid">
-            <div class="trash-card" data-type="plastic_bottle" data-kg="0.5" onclick="selectTrash(this)">
-                <span class="trash-icon">🧴</span>
-                <div class="trash-name">Plastic Bottle</div>
-                <div class="trash-kg">+0.5 kg</div>
-            </div>
-            <div class="trash-card" data-type="glass_bottle" data-kg="1.0" onclick="selectTrash(this)">
-                <span class="trash-icon">🍾</span>
-                <div class="trash-name">Glass Bottle</div>
-                <div class="trash-kg">+1.0 kg</div>
-            </div>
-            <div class="trash-card" data-type="aluminium_can" data-kg="0.3" onclick="selectTrash(this)">
-                <span class="trash-icon">🥤</span>
-                <div class="trash-name">Aluminium Can</div>
-                <div class="trash-kg">+0.3 kg</div>
-            </div>
-            <div class="trash-card" data-type="cardboard_box" data-kg="2.0" onclick="selectTrash(this)">
-                <span class="trash-icon">📦</span>
-                <div class="trash-name">Cardboard Box</div>
-                <div class="trash-kg">+2.0 kg</div>
-            </div>
-            <div class="trash-card" data-type="old_newspaper" data-kg="0.8" onclick="selectTrash(this)">
-                <span class="trash-icon">📰</span>
-                <div class="trash-name">Newspaper</div>
-                <div class="trash-kg">+0.8 kg</div>
-            </div>
-            <div class="trash-card" data-type="electronic_part" data-kg="5.0" onclick="selectTrash(this)">
-                <span class="trash-icon">💻</span>
-                <div class="trash-name">Electronic Part</div>
-                <div class="trash-kg">+5.0 kg ⭐</div>
-            </div>
-            <div class="trash-card" data-type="metal_scrap" data-kg="3.0" onclick="selectTrash(this)">
-                <span class="trash-icon">🔧</span>
-                <div class="trash-name">Metal Scrap</div>
-                <div class="trash-kg">+3.0 kg</div>
-            </div>
-            <div class="trash-card" data-type="wood_plank" data-kg="4.0" onclick="selectTrash(this)">
-                <span class="trash-icon">🪵</span>
-                <div class="trash-name">Wood Plank</div>
-                <div class="trash-kg">+4.0 kg</div>
-            </div>
-        </div>
-
-        <!-- Step 2: Quantity & Submit -->
-        <div class="scan-panel">
-            <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:1.25rem;">Step 2: How Many?</h3>
-            <form th:action="@{/trash-scan/submit}" method="post">
-                <input type="hidden" name="trashType" id="selected-type" value="" />
-                <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-                    <button type="button" onclick="changeQty(-1)"
-                        style="width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:var(--bg-main);font-size:1.2rem;cursor:pointer;font-weight:700;transition:var(--transition);">−</button>
-                    <input type="number" id="qty-input" name="quantity" value="1" min="1" max="100"
-                        style="flex:1;padding:0.6rem;text-align:center;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:1.1rem;font-weight:700;font-family:inherit;background:var(--bg-main);color:var(--text-primary);outline:none;"
-                        oninput="updatePreview()" />
-                    <button type="button" onclick="changeQty(1)"
-                        style="width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:var(--bg-main);font-size:1.2rem;cursor:pointer;font-weight:700;transition:var(--transition);">+</button>
+            <!-- Scanner Box -->
+            <div class="scanner-box" id="scanner-box">
+                <div class="scanner-beam"></div>
+                <div class="scanner-corners">
+                    <span></span><span></span><span></span><span></span>
                 </div>
-                <div
-                    style="text-align:center;padding:1rem;background:var(--bg-card2);border-radius:var(--radius-sm);margin-bottom:1rem;border:1px solid var(--border);">
-                    <div id="earn-preview" style="font-size:1.8rem;font-weight:800;color:var(--accent);">Select type
-                    </div>
-                    <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.2rem;">you will earn</div>
+                <span class="scanner-icon" id="scanner-icon">♻️</span>
+                <div class="scanner-label" id="scanner-label">Select a trash type below</div>
+            </div>
+
+            <!-- Trash type pills -->
+            <div class="trash-pills">
+                <div class="trash-pill" data-type="plastic_bottle" data-kg="0.5" data-icon="🧴"
+                    onclick="selectType(this)">
+                    🧴 Plastic Bottle <span class="pill-kg">+0.5 kg</span>
                 </div>
-                <button type="submit" id="scan-btn" class="btn btn-primary btn-full btn-lg" disabled>
-                    ♻ Deposit &amp; Earn
-                </button>
-            </form>
+                <div class="trash-pill" data-type="glass_bottle" data-kg="1.0" data-icon="🍾"
+                    onclick="selectType(this)">
+                    🍾 Glass Bottle <span class="pill-kg">+1.0 kg</span>
+                </div>
+                <div class="trash-pill" data-type="aluminium_can" data-kg="0.3" data-icon="🥤"
+                    onclick="selectType(this)">
+                    🥤 Aluminium Can <span class="pill-kg">+0.3 kg</span>
+                </div>
+                <div class="trash-pill" data-type="cardboard_box" data-kg="2.0" data-icon="📦"
+                    onclick="selectType(this)">
+                    📦 Cardboard <span class="pill-kg">+2.0 kg</span>
+                </div>
+                <div class="trash-pill" data-type="old_newspaper" data-kg="0.8" data-icon="📰"
+                    onclick="selectType(this)">
+                    📰 Newspaper <span class="pill-kg">+0.8 kg</span>
+                </div>
+                <div class="trash-pill" data-type="electronic_part" data-kg="5.0" data-icon="💻"
+                    onclick="selectType(this)">
+                    💻 Electronics <span class="pill-kg">+5.0 kg ⭐</span>
+                </div>
+                <div class="trash-pill" data-type="metal_scrap" data-kg="3.0" data-icon="🔧" onclick="selectType(this)">
+                    🔧 Metal Scrap <span class="pill-kg">+3.0 kg</span>
+                </div>
+                <div class="trash-pill" data-type="wood_plank" data-kg="4.0" data-icon="🪵" onclick="selectType(this)">
+                    🪵 Wood Plank <span class="pill-kg">+4.0 kg</span>
+                </div>
+            </div>
+
+            <!-- Scan button -->
+            <button class="scan-btn" id="scan-btn" disabled onclick="doScan()">
+                📡 Scan Trash
+            </button>
+
+            <!-- Live earn preview -->
+            <div id="earn-preview" style="display:none;" class="result-chip">
+                +<span id="earn-text">0</span> kg earned!
+            </div>
+
+            <!-- Recent session scans -->
+            <div class="recent-scans" id="recent-box" style="display:none;">
+                <h3>📋 Session Scans</h3>
+                <div id="scan-list"></div>
+            </div>
         </div>
     </section>
+
+    <!-- Hidden form that submits to backend -->
+    <form id="scan-form" th:action="@{/trash-scan/submit}" method="post" style="display:none;">
+        <input type="hidden" name="trashType" id="form-type" />
+        <input type="hidden" name="quantity" value="1" />
+    </form>
 
     <footer class="footer">
         <p>♻ <span>TrashStore</span> — Turning waste into worth</p>
     </footer>
+    <div class="toast-container" id="toast-container"></div>
+
     <script>
         window.addEventListener('scroll', () => {
             document.getElementById('navbar').classList.toggle('navbar-scroll-active', window.scrollY > 10);
         });
-        let selKg = 0;
-        function selectTrash(card) {
-            document.querySelectorAll('.trash-card').forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            document.getElementById('selected-type').value = card.dataset.type;
-            selKg = parseFloat(card.dataset.kg);
-            updatePreview();
+
+        let selectedType = null, selectedKg = 0, selectedIcon = '♻️', scanning = false;
+        const sessionScans = [];
+
+        function selectType(pill) {
+            document.querySelectorAll('.trash-pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            selectedType = pill.dataset.type;
+            selectedKg = parseFloat(pill.dataset.kg);
+            selectedIcon = pill.dataset.icon;
+            document.getElementById('scanner-icon').textContent = selectedIcon;
+            document.getElementById('scanner-label').textContent = 'Ready — hit Scan!';
             document.getElementById('scan-btn').disabled = false;
+            document.getElementById('earn-preview').style.display = 'none';
         }
-        function updatePreview() {
-            const qty = parseInt(document.getElementById('qty-input').value) || 1;
-            if (selKg > 0) {
-                document.getElementById('earn-preview').textContent = '+' + (selKg * qty).toFixed(1) + ' kg';
-            }
+
+        function doScan() {
+            if (!selectedType || scanning) return;
+            scanning = true;
+
+            const box = document.getElementById('scanner-box');
+            const btn = document.getElementById('scan-btn');
+            btn.disabled = true;
+            btn.textContent = '📡 Scanning...';
+            box.classList.add('scanning');
+            document.getElementById('scanner-label').textContent = 'Scanning...';
+
+            // After animation, submit to backend
+            setTimeout(() => {
+                document.getElementById('form-type').value = selectedType;
+                // Submit via fetch to avoid page reload
+                const form = document.getElementById('scan-form');
+                const data = new FormData(form);
+                fetch(form.action, { method: 'POST', body: data })
+                    .then(res => {
+                        // Server redirects back to /trash-scan — we just update UI
+                        box.classList.remove('scanning');
+                        document.getElementById('scanner-label').textContent = 'Scan complete!  ✓';
+                        document.getElementById('scanner-icon').textContent = '✅';
+
+                        const earn = document.getElementById('earn-preview');
+                        document.getElementById('earn-text').textContent = '+' + selectedKg.toFixed(1);
+                        earn.style.display = 'inline-flex';
+
+                        // Update balance display
+                        const balEl = document.getElementById('live-balance');
+                        const cur = parseFloat(balEl.textContent) || 0;
+                        balEl.textContent = (cur + selectedKg).toFixed(2) + ' kg';
+
+                        // Add to session scan list
+                        const now = new Date().toLocaleTimeString();
+                        sessionScans.unshift({ icon: selectedIcon, type: selectedType.replace(/_/g, ' '), kg: selectedKg, time: now });
+                        renderScans();
+
+                        showToast('+' + selectedKg.toFixed(1) + ' kg added to your balance!', 'success');
+
+                        btn.disabled = false;
+                        btn.textContent = '📡 Scan Again';
+                        scanning = false;
+
+                        // Reset icon after short delay
+                        setTimeout(() => {
+                            document.getElementById('scanner-icon').textContent = selectedIcon;
+                            document.getElementById('scanner-label').textContent = 'Ready — hit Scan!';
+                        }, 1500);
+                    })
+                    .catch(() => {
+                        box.classList.remove('scanning');
+                        btn.disabled = false;
+                        btn.textContent = '📡 Scan Trash';
+                        scanning = false;
+                        showToast('Scan failed. Please try again.', 'error');
+                    });
+            }, 1400);
         }
-        function changeQty(delta) {
-            const inp = document.getElementById('qty-input');
-            const newVal = Math.max(1, Math.min(100, parseInt(inp.value || 1) + delta));
-            inp.value = newVal;
-            updatePreview();
+
+        function renderScans() {
+            const box = document.getElementById('recent-box');
+            const list = document.getElementById('scan-list');
+            if (sessionScans.length === 0) { box.style.display = 'none'; return; }
+            box.style.display = 'block';
+            list.innerHTML = sessionScans.slice(0, 6).map(s =>
+                `<div class="scan-row">
+        <span>${s.icon} ${s.type}</span>
+        <span class="earn">+${s.kg.toFixed(1)} kg</span>
+        <span style="color:var(--text-muted);font-size:0.75rem;">${s.time}</span>
+      </div>`
+            ).join('');
+        }
+
+        function showToast(msg, type) {
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = 'toast ' + type;
+            t.textContent = msg;
+            c.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3500);
         }
     </script>
 </body>

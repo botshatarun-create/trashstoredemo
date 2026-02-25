@@ -1,0 +1,31 @@
+{
+    "name": "Trash Store Dev Environment",
+    "image": "mcr.microsoft.com/devcontainers/java:17",
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:1": {
+            "installZsh": true,
+            "configureZshAsDefaultShell": true,
+            "upgradePackages": true
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "vscjava.vscode-java-pack",
+                "vmware.vscode-spring-boot",
+                "vscjava.vscode-spring-initializr",
+                "vscjava.vscode-spring-boot-dashboard"
+            ]
+        }
+    },
+    "forwardPorts": [9091],
+    "portsAttributes": {
+        "9091": {
+            "label": "Trash Store Web App",
+            "onAutoForward": "openBrowser",
+            "visibility": "public"
+        }
+    },
+    "postCreateCommand": "mvn -DskipTests clean install",
+    "remoteUser": "vscode"
+}

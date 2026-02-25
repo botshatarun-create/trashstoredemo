@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin")
@@ -46,15 +48,24 @@ public class AdminController {
             return "redirect:/admin/login?accessDenied=true";
 
         List<Order> orders = orderRepo.findAll();
-        long totalUsers = userRepo.count();
+        List<User> allUsers = userRepo.findAll();
         long totalItems = itemRepo.count();
         BigDecimal totalRevenue = orders.stream()
                 .map(Order::getTotalTrashPaid)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        // Build per-user order counts for the users table
+        Map<Long, Long> orderCountByUser = new HashMap<>();
+        for (Order o : orders) {
+            Long uid = o.getUser().getId();
+            orderCountByUser.merge(uid, 1L, Long::sum);
+        }
+
         model.addAttribute("user", user);
         model.addAttribute("orders", orders);
-        model.addAttribute("totalUsers", totalUsers);
+        model.addAttribute("allUsers", allUsers);
+        model.addAttribute("orderCountByUser", orderCountByUser);
+        model.addAttribute("totalUsers", allUsers.size());
         model.addAttribute("totalItems", totalItems);
         model.addAttribute("totalRevenue", totalRevenue);
         model.addAttribute("totalOrders", orders.size());

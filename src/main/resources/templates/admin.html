@@ -4,8 +4,62 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard — Trash Store</title>
+    <title>Owner Dashboard — Trash Store</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        .tab-bar {
+            display: flex;
+            gap: 0.4rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            padding: 0.55rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--accent);
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            color: var(--accent);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+    </style>
 </head>
 
 <body>
@@ -13,13 +67,14 @@
     <nav class="navbar" id="navbar">
         <a href="/" class="navbar-brand"><span class="logo-icon">♻</span> Trash<span>Store</span></a>
         <ul class="navbar-links">
-            <li><a href="/">Home</a></li>
+            <li><a href="/">Store Home</a></li>
             <li><a href="/shop">Shop</a></li>
-            <li><a href="/admin" class="active">Admin</a></li>
+            <li><a href="/admin" class="active">Dashboard</a></li>
         </ul>
         <div class="navbar-right">
             <span
-                style="font-size:0.78rem;background:#fef3c7;color:#92400e;padding:0.25rem 0.7rem;border-radius:50px;font-weight:700;border:1px solid #fde68a;">OWNER</span>
+                style="font-size:0.75rem;font-weight:700;background:#fef3c7;color:#b45309;padding:0.25rem 0.75rem;border-radius:50px;border:1px solid #fde68a;">⚙
+                OWNER</span>
             <div class="trash-balance">♻ <span th:text="${user.trashBalance} + ' kg'">0kg</span></div>
             <form th:action="@{/logout}" method="post" style="margin:0;">
                 <button type="submit" class="btn btn-outline btn-sm">Sign Out</button>
@@ -29,18 +84,18 @@
 
     <div class="page-header">
         <h1>Owner <span>Dashboard</span></h1>
-        <p>Manage all orders and track your store's performance</p>
+        <p>Full store overview — orders, users, and performance</p>
     </div>
 
     <section class="section" style="padding-top:1.5rem;">
 
-        <!-- Flash messages -->
+        <!-- Flash message -->
         <div th:if="${success}"
-            style="background:var(--accent-light);border:1px solid var(--border-accent);color:var(--accent);padding:0.75rem 1rem;border-radius:var(--radius-sm);margin-bottom:1.5rem;font-size:0.875rem;"
+            style="background:var(--accent-light);border:1px solid var(--border-accent);color:var(--accent);padding:0.75rem 1rem;border-radius:var(--radius-sm);margin-bottom:1.5rem;font-weight:600;"
             th:text="${success}"></div>
 
-        <!-- Stats -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem;">
+        <!-- ── Stat Cards ── -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem;">
             <div class="admin-stat fade-up">
                 <div class="admin-stat-icon green">📦</div>
                 <div>
@@ -71,69 +126,147 @@
             </div>
         </div>
 
-        <!-- Orders Table -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-            <h2 class="section-title" style="font-size:1.2rem;">All <span>Orders</span></h2>
-            <span style="font-size:0.8rem;color:var(--text-muted);" th:text="${totalOrders} + ' total orders'"></span>
+        <!-- ── Tabs ── -->
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('orders', this)">📦 Orders (<span
+                    th:text="${totalOrders}">0</span>)</button>
+            <button class="tab-btn" onclick="switchTab('users',  this)">👥 Users (<span
+                    th:text="${totalUsers}">0</span>)</button>
         </div>
 
-        <div th:if="${#lists.isEmpty(orders)}" class="empty-state">
-            <div class="empty-icon">📭</div>
-            <h3>No orders yet</h3>
-            <p>Orders will appear here once customers start purchasing.</p>
+        <!-- ── ORDERS TAB ── -->
+        <div id="tab-orders" class="tab-panel active">
+            <div th:if="${#lists.isEmpty(orders)}" class="empty-state">
+                <div class="empty-icon">📭</div>
+                <h3>No orders yet</h3>
+                <p>Orders will appear here once customers start purchasing.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(orders)}" style="overflow-x:auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Customer</th>
+                            <th>Items Ordered</th>
+                            <th>Total Paid</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="order : ${orders}">
+                            <td><strong th:text="'#' + ${order.id}">#1</strong></td>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:0.5rem;">
+                                    <span class="user-avatar"
+                                        th:text="${#strings.substring(order.user.username,0,1).toUpperCase()}">T</span>
+                                    <div>
+                                        <div style="font-weight:700;font-size:0.875rem;"
+                                            th:text="${order.user.username}">user</div>
+                                        <div style="font-size:0.75rem;color:var(--text-muted);"
+                                            th:text="${order.user.email}">email</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div th:each="oi : ${order.orderItems}"
+                                    style="font-size:0.8rem;color:var(--text-secondary);line-height:1.6;">
+                                    <span
+                                        th:text="${oi.item != null ? oi.item.name : 'Item'} + ' × ' + ${oi.quantity} + ' (' + ${oi.pricePaid * oi.quantity} + ' kg)'"></span>
+                                </div>
+                            </td>
+                            <td><strong style="color:var(--accent);" th:text="${order.totalTrashPaid} + ' kg'">0
+                                    kg</strong></td>
+                            <td style="font-size:0.78rem;white-space:nowrap;"
+                                th:text="${#temporals.format(order.createdAt,'dd MMM yyyy HH:mm')}">Date</td>
+                            <td>
+                                <span class="order-status" th:classappend="${order.status.toLowerCase()}"
+                                    th:text="${order.status}">PENDING</span>
+                            </td>
+                            <td>
+                                <form th:action="@{'/admin/orders/' + ${order.id} + '/status'}" method="post"
+                                    style="display:flex;gap:0.4rem;align-items:center;">
+                                    <select name="status"
+                                        style="padding:0.3rem 0.5rem;border:1px solid var(--border);border-radius:6px;font-size:0.75rem;font-family:inherit;background:var(--bg-main);color:var(--text-primary);"
+                                        th:attr="value=${order.status}">
+                                        <option value="PENDING" th:selected="${order.status == 'PENDING'}">Pending
+                                        </option>
+                                        <option value="PROCESSING" th:selected="${order.status == 'PROCESSING'}">
+                                            Processing</option>
+                                        <option value="SHIPPED" th:selected="${order.status == 'SHIPPED'}">Shipped
+                                        </option>
+                                        <option value="DELIVERED" th:selected="${order.status == 'DELIVERED'}">Delivered
+                                        </option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <div style="overflow-x:auto;" th:if="${!#lists.isEmpty(orders)}">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Order #</th>
-                        <th>Customer</th>
-                        <th>Items</th>
-                        <th>Total Paid</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Update Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="order : ${orders}">
-                        <td><strong th:text="'#' + ${order.id}">#1</strong></td>
-                        <td th:text="${order.user.username}">Customer</td>
-                        <td th:text="${#lists.size(order.orderItems)} + ' item(s)'">2 items</td>
-                        <td><strong th:text="${order.totalTrashPaid} + ' kg'">10 kg</strong></td>
-                        <td style="font-size:0.78rem;" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy')}">
-                            Date</td>
-                        <td>
-                            <span class="order-status" th:classappend="${order.status.toLowerCase()}"
-                                th:text="${order.status}">PENDING</span>
-                        </td>
-                        <td>
-                            <form th:action="@{'/admin/orders/' + ${order.id} + '/status'}" method="post"
-                                style="display:flex;gap:0.4rem;align-items:center;">
-                                <select name="status"
-                                    style="padding:0.3rem 0.5rem;border:1px solid var(--border);border-radius:6px;font-size:0.75rem;font-family:inherit;background:var(--bg-main);">
-                                    <option value="PENDING">Pending</option>
-                                    <option value="PROCESSING">Processing</option>
-                                    <option value="SHIPPED">Shipped</option>
-                                    <option value="DELIVERED">Delivered</option>
-                                </select>
-                                <button type="submit" class="btn btn-primary btn-sm">Update</button>
-                            </form>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- ── USERS TAB ── -->
+        <div id="tab-users" class="tab-panel">
+            <div style="overflow-x:auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Trash Balance</th>
+                            <th>Orders</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="u : ${allUsers}">
+                            <td>
+                                <div style="display:flex;align-items:center;gap:0.6rem;">
+                                    <span class="user-avatar"
+                                        th:text="${#strings.substring(u.username,0,1).toUpperCase()}">T</span>
+                                    <strong th:text="${u.username}">user</strong>
+                                </div>
+                            </td>
+                            <td th:text="${u.email}">email</td>
+                            <td>
+                                <span th:if="${u.admin}"
+                                    style="background:#fef3c7;color:#b45309;border:1px solid #fde68a;padding:0.2rem 0.6rem;border-radius:50px;font-size:0.72rem;font-weight:700;">OWNER</span>
+                                <span th:unless="${u.admin}"
+                                    style="background:var(--accent-light);color:var(--accent);border:1px solid var(--border-accent);padding:0.2rem 0.6rem;border-radius:50px;font-size:0.72rem;font-weight:700;">MEMBER</span>
+                            </td>
+                            <td><strong style="color:var(--accent);" th:text="${u.trashBalance} + ' kg'">0 kg</strong>
+                            </td>
+                            <td>
+                                <span
+                                    th:text="${orderCountByUser[u.id] != null ? orderCountByUser[u.id] : 0} + ' orders'">0
+                                    orders</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
+
     </section>
 
     <footer class="footer">
-        <p>♻ <span>TrashStore</span> — Admin Panel</p>
+        <p>♻ <span>TrashStore</span> — Owner Dashboard</p>
     </footer>
+
     <script>
         window.addEventListener('scroll', () => {
             document.getElementById('navbar').classList.toggle('navbar-scroll-active', window.scrollY > 10);
         });
+        function switchTab(name, btn) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + name).classList.add('active');
+            btn.classList.add('active');
+        }
     </script>
 </body>
 

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${item.name} + ' — Trash Store'">Item — Trash Store</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+
+<body>
+
+    <nav class="navbar" id="navbar">
+        <a href="/" class="navbar-brand"><span class="logo-icon">♻</span> Trash<span>Store</span></a>
+        <ul class="navbar-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/shop" class="active">Shop</a></li>
+            <li><a href="/trash-scan">Scan Trash</a></li>
+            <li><a href="/orders">Orders</a></li>
+            <li th:if="${user.admin}"><a href="/admin">Admin</a></li>
+        </ul>
+        <div class="navbar-right">
+            <div class="trash-balance">♻ <span th:text="${user.trashBalance} + ' kg'">0kg</span></div>
+            <a href="/cart" class="cart-btn">
+                🛒 Cart
+                <span class="cart-badge" id="cart-badge" th:text="${cart.totalItems}"
+                    th:style="${cart.totalItems == 0} ? 'display:none' : 'display:flex'">0</span>
+            </a>
+            <form th:action="@{/logout}" method="post" style="margin:0;">
+                <button type="submit" class="btn btn-outline btn-sm">Sign Out</button>
+            </form>
+        </div>
+    </nav>
+
+    <section class="section" style="padding-top:2rem;">
+        <!-- Breadcrumb -->
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1.5rem;">
+            <a href="/shop" style="color:var(--accent);">Shop</a>
+            &nbsp;/&nbsp;
+            <a th:href="@{/shop(category=${item.category})}" style="color:var(--accent);"
+                th:text="${item.category}">Category</a>
+            &nbsp;/&nbsp;
+            <span th:text="${item.name}">Item</span>
+        </div>
+
+        <div class="item-detail-grid fade-up">
+            <!-- Image -->
+            <div class="item-detail-img">
+                <img th:src="${item.imageUrl}" th:alt="${item.name}"
+                    onerror="this.src='https://picsum.photos/400/300?grayscale'" />
+            </div>
+
+            <!-- Info -->
+            <div>
+                <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--accent);margin-bottom:0.5rem;"
+                    th:text="${item.category}">Category</div>
+                <h1 style="font-size:1.8rem;font-weight:800;color:var(--text-primary);margin-bottom:0.75rem;"
+                    th:text="${item.name}">Item Name</h1>
+                <p style="color:var(--text-secondary);line-height:1.7;margin-bottom:1.25rem;"
+                    th:text="${item.description}">Description</p>
+
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+                    <div>
+                        <div style="font-size:2rem;font-weight:800;color:var(--text-primary);"
+                            th:text="${item.trashPrice} + ' kg'">5 kg</div>
+                        <div style="font-size:0.78rem;color:var(--text-muted);">of trash required</div>
+                    </div>
+                    <div style="padding:0.4rem 0.9rem;border-radius:50px;font-size:0.78rem;font-weight:700;"
+                        th:classappend="${item.inStock} ? 'order-status completed' : 'order-status'"
+                        th:style="${item.inStock} ? '' : 'background:#f1f5f9;color:var(--text-muted);'"
+                        th:text="${item.inStock} ? ${item.stockQuantity} + ' in stock' : 'Out of Stock'">In Stock</div>
+                </div>
+
+                <!-- Balance check -->
+                <div
+                    style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem 1rem;margin-bottom:1.25rem;font-size:0.85rem;">
+                    <span style="color:var(--text-muted);">Your balance: </span>
+                    <strong style="color:var(--accent);" th:text="${user.trashBalance} + ' kg'">0 kg</strong>
+                    <span style="color:var(--text-muted);"> &bull; </span>
+                    <span th:if="${user.trashBalance >= item.trashPrice}" style="color:var(--accent);font-weight:600;">✓
+                        You can afford this!</span>
+                    <span th:unless="${user.trashBalance >= item.trashPrice}"
+                        style="color:var(--accent-red);font-weight:600;">Need more trash balance — <a href="/trash-scan"
+                            style="color:var(--accent);">Scan trash</a></span>
+                </div>
+
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                    <button class="btn btn-primary btn-lg" th:disabled="${!item.inStock}"
+                        th:attr="data-item-id=${item.id}" onclick="addToCartAndGo(this)">
+                        🛒 Add to Cart
+                    </button>
+                    <a href="/shop" class="btn btn-outline btn-lg">&larr; Back to Shop</a>
+                </div>
+
+                <!-- Details grid -->
+                <div style="margin-top:1.75rem;display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                    <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:0.75rem 1rem;">
+                        <div
+                            style="font-size:0.72rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">
+                            Category</div>
+                        <div style="font-weight:700;margin-top:0.2rem;" th:text="${item.category}">Category</div>
+                    </div>
+                    <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:0.75rem 1rem;">
+                        <div
+                            style="font-size:0.72rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">
+                            Stock</div>
+                        <div style="font-weight:700;margin-top:0.2rem;" th:text="${item.stockQuantity} + ' units'">20
+                            units</div>
+                    </div>
+                    <div style="background:var(--bg-card2);border-radius:var(--radius-sm);padding:0.75rem 1rem;">
+                        <div
+                            style="font-size:0.72rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">
+                            Price</div>
+                        <div style="font-weight:700;margin-top:0.2rem;" th:text="${item.trashPrice} + ' kg trash'">5 kg
+                        </div>
+                    </div>
+                    <div
+                        style="background:#f0fdf4;border-radius:var(--radius-sm);padding:0.75rem 1rem;border:1px solid var(--border-accent);">
+                        <div
+                            style="font-size:0.72rem;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">
+                            Eco Score</div>
+                        <div style="font-weight:700;color:var(--accent);margin-top:0.2rem;">100% Upcycled ♻</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Items -->
+        <div th:if="${!#lists.isEmpty(relatedItems)}" style="margin-top:3rem;">
+            <div class="section-header">
+                <h2 class="section-title" style="font-size:1.2rem;">You Might Also <span>Like</span></h2>
+            </div>
+            <div class="product-grid">
+                <div th:each="ri : ${relatedItems}" class="product-card"
+                    th:onclick="'window.location.href=\'/shop/item/' + ${ri.id} + '\''">
+                    <div class="product-img-wrap">
+                        <img th:src="${ri.imageUrl}" th:alt="${ri.name}" loading="lazy"
+                            onerror="this.src='https://picsum.photos/400/300?grayscale'" />
+                        <span th:if="${ri.inStock}" class="product-badge"
+                            th:text="${ri.stockQuantity} + ' left'"></span>
+                        <span th:unless="${ri.inStock}" class="product-badge out-of-stock">Sold Out</span>
+                    </div>
+                    <div class="product-body">
+                        <div class="product-category" th:text="${ri.category}">Category</div>
+                        <h3 class="product-name" th:text="${ri.name}">Name</h3>
+                        <div class="product-footer">
+                            <div class="product-price">
+                                <span th:text="${ri.trashPrice} + ' kg'">5 kg</span>
+                                <small>of trash</small>
+                            </div>
+                            <button class="add-to-cart-btn" th:disabled="${!ri.inStock}" th:attr="data-item-id=${ri.id}"
+                                onclick="addToCart(event, this)">+ Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>♻ <span>TrashStore</span> — Turning waste into worth</p>
+    </footer>
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('navbar-scroll-active', window.scrollY > 10);
+        });
+        function addToCartAndGo(btn) {
+            const itemId = btn.dataset.itemId;
+            btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Adding...';
+            fetch('/api/cart/add/' + itemId, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) { window.location.href = '/cart'; }
+                    else { showToast(data.error, 'error'); btn.disabled = false; btn.innerHTML = '🛒 Add to Cart'; }
+                });
+        }
+        function addToCart(e, btn) {
+            e.stopPropagation();
+            const itemId = btn.dataset.itemId;
+            const orig = btn.textContent;
+            btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+            fetch('/api/cart/add/' + itemId, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    btn.disabled = false; btn.textContent = orig;
+                    if (data.success) {
+                        showToast('Added!', 'success');
+                        const b = document.getElementById('cart-badge');
+                        b.textContent = data.cartCount; b.style.display = 'flex';
+                    } else { showToast(data.error, 'error'); }
+                });
+        }
+        function showToast(msg, type) {
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
+            c.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
+        }
+    </script>
+</body>
+
+</html>

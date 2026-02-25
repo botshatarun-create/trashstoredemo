@@ -6,139 +6,119 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Orders — Trash Store</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗑️</text></svg>" />
 </head>
 
 <body>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <a href="/" class="navbar-brand">
-            <span class="logo-icon">🗑️</span>
-            <div class="brand-name">Trash<span>Store</span></div>
-        </a>
+    <nav class="navbar" id="navbar">
+        <a href="/" class="navbar-brand"><span class="logo-icon">♻</span> Trash<span>Store</span></a>
         <ul class="navbar-links">
             <li><a href="/">Home</a></li>
             <li><a href="/shop">Shop</a></li>
-            <li><a href="/orders" class="active">My Orders</a></li>
+            <li><a href="/trash-scan">Scan Trash</a></li>
+            <li><a href="/orders" class="active">Orders</a></li>
+            <li th:if="${user.admin}"><a href="/admin">Admin</a></li>
         </ul>
         <div class="navbar-right">
-            <div class="trash-balance">
-                ♻️ <span th:text="${user.trashBalance} + 'kg'">500kg</span>
-            </div>
+            <a href="/profile"
+                style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;font-weight:600;color:var(--text-secondary);">
+                <span
+                    style="width:28px;height:28px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;"
+                    th:text="${#strings.substring(user.username,0,1).toUpperCase()}">T</span>
+            </a>
+            <div class="trash-balance">♻ <span th:text="${user.trashBalance} + ' kg'">0kg</span></div>
             <a href="/cart" class="cart-btn">
                 🛒 Cart
-                <span class="cart-badge" id="cart-badge" th:text="${cart.totalItems}"
+                <span class="cart-badge" th:text="${cart.totalItems}"
                     th:style="${cart.totalItems == 0} ? 'display:none' : 'display:flex'">0</span>
             </a>
+            <form th:action="@{/logout}" method="post" style="margin:0;">
+                <button type="submit" class="btn btn-outline btn-sm">Sign Out</button>
+            </form>
         </div>
     </nav>
 
-    <!-- PAGE HEADER -->
     <div class="page-header">
-        <h1>My <span style="color:var(--accent-green)">Orders</span></h1>
-        <p>Your complete purchase history. All paid for in trash. 🏆</p>
+        <h1>My <span>Orders</span></h1>
+        <p>Your complete purchase history</p>
     </div>
 
-    <!-- USER PROFILE CARD -->
-    <section class="section" style="padding-top:1rem;">
-        <div style="display:flex; gap:1.5rem; flex-wrap:wrap; margin-bottom:2.5rem;">
-            <div
-                style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius); padding:1.5rem; flex:1; min-width:200px; text-align:center;">
-                <div style="font-size:2.5rem; margin-bottom:0.5rem;">👤</div>
-                <div style="font-weight:700; font-size:1.1rem;" th:text="${user.username}">trashmaster</div>
-                <div style="color:var(--text-muted); font-size:0.85rem;" th:text="${user.email}">trash@store.com</div>
+    <section class="section" style="padding-top:1.5rem;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem;">
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;text-align:center;"
+                class="fade-up">
+                <div style="font-size:1.5rem;font-weight:800;color:var(--text-primary);" id="orders-count-stat">—</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.2rem;">Orders Placed</div>
             </div>
-            <div
-                style="background:rgba(57,255,20,0.05); border:1px solid rgba(57,255,20,0.2); border-radius:var(--radius); padding:1.5rem; flex:1; min-width:200px; text-align:center;">
-                <div style="font-size:2rem; margin-bottom:0.3rem;">♻️</div>
-                <div style="font-size:2rem; font-weight:800; color:var(--accent-green);"
-                    th:text="${user.trashBalance} + 'kg'">500kg</div>
-                <div style="color:var(--text-muted); font-size:0.82rem;">Current Trash Balance</div>
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;text-align:center;"
+                class="fade-up-delay-1">
+                <div style="font-size:1.5rem;font-weight:800;color:var(--accent);"
+                    th:text="${user.trashBalance} + ' kg'">0 kg</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.2rem;">Balance Remaining</div>
             </div>
-            <div
-                style="background:rgba(255,187,0,0.05); border:1px solid rgba(255,187,0,0.2); border-radius:var(--radius); padding:1.5rem; flex:1; min-width:200px; text-align:center;">
-                <div style="font-size:2rem; margin-bottom:0.3rem;">📦</div>
-                <div id="order-count" style="font-size:2rem; font-weight:800; color:var(--accent-amber);">—</div>
-                <div style="color:var(--text-muted); font-size:0.82rem;">Orders Placed</div>
+            <div style="background:linear-gradient(135deg,#f0fdf4,#f0f9ff);border:1px solid var(--border-accent);border-radius:var(--radius-lg);padding:1.25rem;text-align:center;"
+                class="fade-up-delay-2">
+                <a href="/trash-scan" class="btn btn-primary btn-sm" style="display:inline-flex;">+ Earn More</a>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem;">Scan trash to refill</div>
             </div>
         </div>
 
-        <!-- ORDERS LIST (loaded via AJAX) -->
-        <h2 class="section-title mb-2">Order <span>History</span></h2>
         <div id="orders-container">
-            <div style="text-align:center; padding:3rem; color:var(--text-muted);">
+            <div style="text-align:center;padding:3rem;color:var(--text-muted);">
                 <span class="spinner"></span>
-                <p style="margin-top:1rem;">Loading orders...</p>
+                <p style="margin-top:0.75rem;font-size:0.9rem;">Loading your orders...</p>
             </div>
         </div>
     </section>
 
-    <!-- FOOTER -->
     <footer class="footer">
-        <p>🗑️ <span>TrashStore</span> — Turning waste into worth · Built with Spring Boot & ♻️</p>
+        <p>♻ <span>TrashStore</span> — Turning waste into worth</p>
     </footer>
-
-    <div class="toast-container" id="toast-container"></div>
-
     <script>
-        function formatDate(isoString) {
-            if (!isoString) return 'Unknown date';
-            const d = new Date(isoString);
-            return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('navbar-scroll-active', window.scrollY > 10);
+        });
+
+        const STATUS_CLASSES = { PENDING: 'pending', PROCESSING: 'processing', SHIPPED: 'shipped', DELIVERED: 'delivered completed', COMPLETED: 'completed delivered' };
+
+        function formatDate(iso) {
+            if (!iso) return '';
+            return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
-        function loadOrders() {
-            fetch('/api/orders')
-                .then(r => r.json())
-                .then(orders => {
-                    const container = document.getElementById('orders-container');
-                    document.getElementById('order-count').textContent = orders.length;
-
-                    if (orders.length === 0) {
-                        container.innerHTML = `
-            <div class="empty-state">
-              <div class="empty-icon">📦</div>
-              <h3>No orders yet</h3>
-              <p>Head over to the shop and make your first trash trade!</p>
-              <a href="/shop" class="btn btn-primary" style="margin-top:1.2rem;">Browse Shop</a>
-            </div>`;
-                        return;
-                    }
-
-                    container.innerHTML = orders.map(order => `
-          <div class="order-card">
-            <div class="order-header">
-              <div>
-                <div class="order-id">Order #${order.id}</div>
-                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;">${formatDate(order.createdAt)}</div>
-              </div>
-              <span class="order-status completed">${order.status}</span>
+        fetch('/api/orders')
+            .then(r => r.json())
+            .then(orders => {
+                document.getElementById('orders-count-stat').textContent = orders.length;
+                const container = document.getElementById('orders-container');
+                if (orders.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div><h3>No orders yet</h3><p>Browse the shop and make your first purchase!</p><a href="/shop" class="btn btn-primary" style="margin-top:1rem;">Browse Shop</a></div>`;
+                    return;
+                }
+                container.innerHTML = orders.map(o => `
+        <div class="order-card">
+          <div class="order-header">
+            <div>
+              <div class="order-id">Order #${o.id}</div>
+              <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.15rem;">${formatDate(o.createdAt)}</div>
             </div>
-            <div class="order-items-list">
-              ${(order.orderItems || []).map(oi => `
-                <div class="order-item-row">
-                  <span>${oi.item ? oi.item.name : 'Item'} × ${oi.quantity}</span>
-                  <span>${oi.pricePaid !== undefined ? (oi.pricePaid * oi.quantity).toFixed(2) + 'kg' : '—'}</span>
-                </div>
-              `).join('')}
-            </div>
-            <div class="order-total">Total Paid: ${order.totalTrashPaid}kg of trash</div>
+            <span class="order-status ${STATUS_CLASSES[o.status] || 'pending'}">${o.status}</span>
           </div>
-        `).join('');
-                })
-                .catch(() => {
-                    document.getElementById('orders-container').innerHTML = `
-          <div class="empty-state">
-            <div class="empty-icon">⚠️</div>
-            <h3>Could not load orders</h3>
-            <p>Please refresh the page.</p>
-          </div>`;
-                });
-        }
-
-        loadOrders();
+          <div class="order-items-list">
+            ${(o.orderItems || []).map(oi => `
+              <div class="order-item-row">
+                <span>${oi.item ? oi.item.name : 'Item'} &times; ${oi.quantity}</span>
+                <span>${oi.pricePaid !== undefined ? (oi.pricePaid * oi.quantity).toFixed(2) + ' kg' : '—'}</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="order-total">Total: ${o.totalTrashPaid} kg of trash</div>
+        </div>
+      `).join('');
+            })
+            .catch(() => {
+                document.getElementById('orders-container').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Couldn't load orders</h3><p>Please refresh the page.</p></div>`;
+            });
     </script>
 </body>
 

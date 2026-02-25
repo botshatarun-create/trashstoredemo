@@ -48,16 +48,16 @@ public class AuthController {
             return "redirect:/register";
         }
         if (userRepo.findByUsername(username).isPresent()) {
-            redirectAttributes.addFlashAttribute("error", "Username already taken.");
+            redirectAttributes.addFlashAttribute("error", "Username already taken. Choose another.");
             return "redirect:/register";
         }
-
-        User user = new User(username, email, new BigDecimal("100.0")); // Start with 100kg trash balance
+        // New users start with ZERO balance — earn via trash scan!
+        User user = new User(username, email, BigDecimal.ZERO);
         user.setPassword(passwordEncoder.encode(password));
         userRepo.save(user);
 
         redirectAttributes.addFlashAttribute("success",
-                "Account created! You start with 100kg of trash balance. Login now!");
+                "Account created! Login and scan trash to earn your first balance.");
         return "redirect:/login";
     }
 }

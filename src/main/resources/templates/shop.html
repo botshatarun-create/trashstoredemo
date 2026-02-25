@@ -5,50 +5,48 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shop — Trash Store</title>
-    <meta name="description"
-        content="Browse all available trash treasures. Filter by category or search for your perfect upcycled item." />
     <link rel="stylesheet" th:href="@{/css/style.css}" />
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗑️</text></svg>" />
 </head>
 
 <body>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <a href="/" class="navbar-brand">
-            <span class="logo-icon">🗑️</span>
-            <div class="brand-name">Trash<span>Store</span></div>
-        </a>
+    <nav class="navbar" id="navbar">
+        <a href="/" class="navbar-brand"><span class="logo-icon">♻</span> Trash<span>Store</span></a>
         <ul class="navbar-links">
             <li><a href="/">Home</a></li>
             <li><a href="/shop" class="active">Shop</a></li>
-            <li><a href="/orders">My Orders</a></li>
+            <li><a href="/trash-scan">Scan Trash</a></li>
+            <li><a href="/orders">Orders</a></li>
+            <li th:if="${user.admin}"><a href="/admin">Admin</a></li>
         </ul>
         <div class="navbar-right">
-            <div class="trash-balance">
-                ♻️ <span id="balance-display" th:text="${user.trashBalance} + 'kg'">500kg</span>
-            </div>
+            <a href="/profile"
+                style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;font-weight:600;color:var(--text-secondary);">
+                <span
+                    style="width:28px;height:28px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;"
+                    th:text="${#strings.substring(user.username,0,1).toUpperCase()}">T</span>
+            </a>
+            <div class="trash-balance">♻ <span th:text="${user.trashBalance} + ' kg'">0kg</span></div>
             <a href="/cart" class="cart-btn">
                 🛒 Cart
                 <span class="cart-badge" id="cart-badge" th:text="${cart.totalItems}"
                     th:style="${cart.totalItems == 0} ? 'display:none' : 'display:flex'">0</span>
             </a>
+            <form th:action="@{/logout}" method="post" style="margin:0;">
+                <button type="submit" class="btn btn-outline btn-sm">Sign Out</button>
+            </form>
         </div>
     </nav>
 
-    <!-- PAGE HEADER -->
     <div class="page-header">
-        <h1>The <span style="color:var(--accent-green)">Trash</span> Market</h1>
-        <p>Browse over 12 hand-picked upcycled goods. Filter, search, and find your treasure.</p>
+        <h1>The <span>Trash</span> Market</h1>
+        <p>Browse 12 unique upcycled items. Filter by category or search for your perfect find.</p>
     </div>
 
-    <!-- SHOP SECTION -->
-    <section class="section" style="padding-top:1rem;">
-        <!-- FILTER BAR -->
-        <div class="filter-bar">
+    <section class="section" style="padding-top:1.5rem;">
+        <div class="filter-bar fade-up">
             <form action="/shop" method="get">
-                <input type="text" name="search" class="search-input" placeholder="🔍 Search items..."
+                <input type="text" name="search" class="search-input" placeholder="Search items..."
                     th:value="${search}" />
                 <select name="category" class="filter-select" onchange="this.form.submit()">
                     <option value="">All Categories</option>
@@ -60,87 +58,86 @@
             </form>
         </div>
 
-        <!-- RESULTS COUNT -->
-        <p class="text-muted mb-2" style="font-size:0.85rem;" th:text="${#lists.size(items)} + ' item(s) found'">12
-            items found</p>
+        <!-- Category tabs -->
+        <div class="category-tabs mb-2">
+            <a href="/shop" class="category-tab"
+                th:classappend="${selectedCategory == null and search == null} ? 'active' : ''">All</a>
+            <a th:each="cat : ${categories}" th:href="@{/shop(category=${cat})}" class="category-tab"
+                th:classappend="${selectedCategory == cat} ? 'active' : ''" th:text="${cat}">Cat</a>
+        </div>
 
-        <!-- ITEM GRID -->
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;"
+            th:text="${#lists.size(items)} + ' item(s) found'">12 items found</p>
+
         <div class="product-grid" th:if="${!#lists.isEmpty(items)}">
-            <div th:each="item : ${items}" class="product-card">
+            <div th:each="item, stat : ${items}" class="product-card"
+                th:style="'animation-delay:' + ${stat.index * 0.06} + 's'"
+                th:onclick="'window.location.href=\'/shop/item/' + ${item.id} + '\''">
                 <div class="product-img-wrap">
                     <img th:src="${item.imageUrl}" th:alt="${item.name}" loading="lazy"
-                        onerror="this.src='https://via.placeholder.com/400x200/111118/39ff14?text=♻️'" />
-                    <span th:if="${item.inStock}" class="product-badge" th:text="${item.stockQuantity} + ' left'">In
-                        Stock</span>
+                        onerror="this.src='https://picsum.photos/seed/' + Math.random() + '/400/300'" />
+                    <span th:if="${item.inStock}" class="product-badge"
+                        th:text="${item.stockQuantity} + ' left'"></span>
                     <span th:unless="${item.inStock}" class="product-badge out-of-stock">Sold Out</span>
                 </div>
                 <div class="product-body">
                     <div class="product-category" th:text="${item.category}">Category</div>
-                    <h3 class="product-name" th:text="${item.name}">Item Name</h3>
-                    <p class="product-desc" th:text="${item.description}">Description</p>
+                    <h3 class="product-name" th:text="${item.name}">Name</h3>
+                    <p class="product-desc" th:text="${item.description}">Desc</p>
                     <div class="product-footer">
                         <div class="product-price">
-                            <span th:text="${item.trashPrice} + 'kg'">5kg</span>
+                            <span th:text="${item.trashPrice} + ' kg'">5 kg</span>
                             <small>of trash</small>
                         </div>
                         <button class="add-to-cart-btn" th:disabled="${!item.inStock}" th:attr="data-item-id=${item.id}"
-                            onclick="addToCart(this)">
-                            + Add to Cart
+                            onclick="addToCart(event, this)">
+                            + Add
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- EMPTY SEARCH -->
         <div class="empty-state" th:if="${#lists.isEmpty(items)}">
             <div class="empty-icon">🔍</div>
             <h3>No items found</h3>
-            <p>Try a different search term or browse all categories.</p>
-            <a href="/shop" class="btn btn-primary" style="margin-top:1.2rem;">Browse All Items</a>
+            <p>Try a different search or browse all categories.</p>
+            <a href="/shop" class="btn btn-primary" style="margin-top:1.2rem;">Browse All</a>
         </div>
     </section>
 
-    <!-- FOOTER -->
     <footer class="footer">
-        <p>🗑️ <span>TrashStore</span> — Turning waste into worth · Built with Spring Boot & ♻️</p>
+        <p>♻ <span>TrashStore</span> — Turning waste into worth</p>
     </footer>
-
     <div class="toast-container" id="toast-container"></div>
 
     <script>
-        function addToCart(btn) {
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('navbar-scroll-active', window.scrollY > 10);
+        });
+        function addToCart(e, btn) {
+            e.stopPropagation();
             const itemId = btn.dataset.itemId;
-            const original = btn.textContent;
+            const orig = btn.textContent;
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner"></span>';
-            fetch(`/api/cart/add/${itemId}`, { method: 'POST' })
+            fetch('/api/cart/add/' + itemId, { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
-                    btn.disabled = false;
-                    btn.textContent = original;
+                    btn.disabled = false; btn.textContent = orig;
                     if (data.success) {
-                        showToast('✅ Added to cart!', 'success');
-                        const badge = document.getElementById('cart-badge');
-                        badge.textContent = data.cartCount;
-                        badge.style.display = 'flex';
-                    } else {
-                        showToast('❌ ' + data.error, 'error');
-                    }
-                }).catch(() => {
-                    btn.disabled = false;
-                    btn.textContent = original;
-                    showToast('❌ Network error', 'error');
+                        showToast('Added to cart!', 'success');
+                        const b = document.getElementById('cart-badge');
+                        b.textContent = data.cartCount; b.style.display = 'flex';
+                    } else { showToast(data.error, 'error'); }
                 });
         }
-
         function showToast(msg, type) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = msg;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3500);
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = 'toast ' + type; t.textContent = msg;
+            c.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
         }
     </script>
 </body>

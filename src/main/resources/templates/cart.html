@@ -4,196 +4,157 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Your Cart - Trash Store</title>
+    <title>Cart — Trash Store</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>trash</text></svg>" />
 </head>
 
 <body>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <a href="/" class="navbar-brand">
-            <span class="logo-icon">&#x1F5D1;</span>
-            <div class="brand-name">Trash<span>Store</span></div>
-        </a>
+    <nav class="navbar" id="navbar">
+        <a href="/" class="navbar-brand"><span class="logo-icon">♻</span> Trash<span>Store</span></a>
         <ul class="navbar-links">
             <li><a href="/">Home</a></li>
             <li><a href="/shop">Shop</a></li>
-            <li><a href="/orders">My Orders</a></li>
+            <li><a href="/orders">Orders</a></li>
+            <li th:if="${user.admin}"><a href="/admin">Admin</a></li>
         </ul>
         <div class="navbar-right">
-            <div class="trash-balance">
-                &#x267B; <span id="balance-display" th:text="${user.trashBalance} + 'kg'">500kg</span>
-            </div>
-            <a href="/cart" class="cart-btn" style="border-color:rgba(57,255,20,0.3)">
-                &#x1F6D2; Cart
+            <div class="trash-balance">♻ <span th:text="${user.trashBalance} + ' kg'">0kg</span></div>
+            <a href="/cart" class="cart-btn" style="background:var(--accent);">
+                🛒 Cart
                 <span class="cart-badge" id="cart-badge" th:text="${cart.totalItems}"
                     th:style="${cart.totalItems == 0} ? 'display:none' : 'display:flex'">0</span>
             </a>
+            <form th:action="@{/logout}" method="post" style="margin:0;">
+                <button type="submit" class="btn btn-outline btn-sm">Sign Out</button>
+            </form>
         </div>
     </nav>
 
-    <!-- PAGE HEADER -->
     <div class="page-header">
-        <h1>Your <span style="color:var(--accent-green)">Cart</span></h1>
-        <p th:if="${!#lists.isEmpty(cart.items)}" th:text="${cart.totalItems} + ' item(s) total'">5 items</p>
-        <p th:if="${#lists.isEmpty(cart.items)}" class="text-muted">Your cart is empty.</p>
+        <h1>Your <span>Cart</span></h1>
+        <p th:if="${!#lists.isEmpty(cart.items)}"
+            th:text="${cart.totalItems} + ' item(s) — ' + ${cart.total} + ' kg total'">Items</p>
+        <p th:if="${#lists.isEmpty(cart.items)}" style="color:var(--text-muted);">Your cart is empty</p>
     </div>
 
-    <section class="section" style="padding-top:1rem;">
-
-        <!-- EMPTY CART -->
+    <section class="section" style="padding-top:1.5rem;">
         <div class="empty-state" th:if="${#lists.isEmpty(cart.items)}">
-            <div class="empty-icon">&#x1F6D2;</div>
-            <h3>Your cart is empty</h3>
-            <p>Head over to the shop and find some trash treasures!</p>
-            <a href="/shop" class="btn btn-primary" style="margin-top:1.2rem;">Browse Shop</a>
+            <div class="empty-icon">🛒</div>
+            <h3>Nothing in your cart</h3>
+            <p>Add items from the shop to get started.</p>
+            <a href="/shop" class="btn btn-primary" style="margin-top:1rem;">Browse Shop</a>
         </div>
 
-        <!-- CART CONTENT -->
         <div class="cart-layout" th:if="${!#lists.isEmpty(cart.items)}">
-
-            <!-- LEFT: Items -->
             <div class="cart-items-list" id="cart-items-list">
                 <div th:each="ci : ${cart.items}" class="cart-item-card" th:attr="data-ci-id=${ci.id}">
                     <img class="cart-item-img" th:src="${ci.item.imageUrl}" th:alt="${ci.item.name}"
-                        onerror="this.src='https://via.placeholder.com/90x70/111118/39ff14?text=trash'" />
+                        onerror="this.src='https://picsum.photos/80/64?grayscale'" />
                     <div class="cart-item-info">
                         <div class="cart-item-name" th:text="${ci.item.name}">Name</div>
-                        <div class="cart-item-price" th:text="${ci.item.trashPrice} + 'kg each'">5kg</div>
+                        <div class="cart-item-price" th:text="${ci.item.trashPrice} + ' kg each'">5 kg</div>
                     </div>
                     <div class="cart-item-actions">
-                        <button class="qty-btn" title="Decrease" th:attr="data-ci-id=${ci.id}"
+                        <button class="qty-btn" th:attr="data-ci-id=${ci.id}"
                             onclick="updateQty(this, -1)">&#8722;</button>
                         <span class="qty-num" th:text="${ci.quantity}">1</span>
-                        <button class="qty-btn" title="Increase" th:attr="data-ci-id=${ci.id}"
-                            onclick="updateQty(this, 1)">&#43;</button>
+                        <button class="qty-btn" th:attr="data-ci-id=${ci.id}" onclick="updateQty(this, 1)">+</button>
                         <button class="btn btn-danger btn-sm" th:attr="data-ci-id=${ci.id}" onclick="removeItem(this)"
-                            style="margin-left:0.5rem;">&#x1F5D1;</button>
+                            style="margin-left:0.25rem;">Remove</button>
                     </div>
                 </div>
             </div>
 
-            <!-- RIGHT: Summary -->
             <div class="order-summary">
-                <h3>&#x1F9FE; Order Summary</h3>
+                <h3>Order Summary</h3>
                 <div th:each="ci : ${cart.items}" class="summary-row">
                     <span th:text="${ci.item.name} + ' x' + ${ci.quantity}">Item x1</span>
-                    <span th:text="${ci.subtotal} + 'kg'">5kg</span>
+                    <span th:text="${ci.subtotal} + ' kg'">5 kg</span>
                 </div>
                 <div class="summary-row total">
                     <span>Total</span>
-                    <span id="cart-total" th:text="${cart.total} + 'kg'">0kg</span>
+                    <span id="cart-total" th:text="${cart.total} + ' kg'">0 kg</span>
                 </div>
                 <div class="user-balance-note">
-                    Your balance: <strong th:text="${user.trashBalance} + 'kg'">500kg</strong>
+                    Your balance: <strong th:text="${user.trashBalance} + ' kg'">0 kg</strong>
+                    <span th:if="${user.trashBalance < cart.total}"
+                        style="display:block;margin-top:0.35rem;color:var(--accent-red);font-size:0.78rem;">
+                        Not enough balance — <a href="/trash-scan" style="color:var(--accent);">scan more trash
+                            first</a>
+                    </span>
                 </div>
                 <button id="checkout-btn" class="btn btn-primary w-full" onclick="openCheckout()"
                     style="margin-top:1rem;">
-                    &#x267B; Checkout with Trash
+                    ♻ Checkout with Trash
                 </button>
                 <a href="/shop" class="btn btn-outline w-full"
-                    style="margin-top:0.75rem; display:flex; justify-content:center;">
-                    &larr; Continue Shopping
-                </a>
+                    style="margin-top:0.6rem; display:flex; justify-content:center;">&larr; Continue Shopping</a>
             </div>
         </div>
     </section>
 
-    <!-- FOOTER -->
     <footer class="footer">
-        <p>&#x1F5D1; <span>TrashStore</span> - Turning waste into worth</p>
+        <p>♻ <span>TrashStore</span> — Turning waste into worth</p>
     </footer>
 
-    <!-- CHECKOUT MODAL -->
     <div class="modal-overlay" id="checkout-modal">
         <div class="modal">
-            <div class="modal-icon">&#x267B;</div>
-            <h2>Confirm Your Trade</h2>
-            <p>You are about to spend your hard-earned trash to claim these treasures!</p>
-            <div class="modal-amount" id="modal-total">0kg</div>
+            <div class="modal-icon">♻️</div>
+            <h2>Confirm Purchase</h2>
+            <p>You're about to exchange your trash for these treasures!</p>
+            <div class="modal-amount" id="modal-total">0 kg</div>
             <p style="font-size:0.8rem;color:var(--text-muted);">of trash will be deducted from your balance</p>
-            <div class="modal-actions" style="margin-top:1.5rem;">
+            <div class="modal-actions">
                 <button class="btn btn-outline" onclick="closeCheckout()">Cancel</button>
-                <button class="btn btn-primary" id="confirm-checkout-btn" onclick="confirmCheckout()">Confirm
-                    Purchase</button>
+                <button class="btn btn-primary" id="confirm-checkout-btn" onclick="confirmCheckout()">Confirm</button>
             </div>
         </div>
     </div>
-
     <div class="toast-container" id="toast-container"></div>
 
     <script>
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('navbar-scroll-active', window.scrollY > 10);
+        });
         function showToast(msg, type) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast ' + type;
-            toast.textContent = msg;
-            container.appendChild(toast);
-            setTimeout(function () { toast.remove(); }, 4000);
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
+            c.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3500);
         }
-
         function removeItem(btn) {
-            const ciId = btn.dataset.ciId;
-            btn.disabled = true;
+            const ciId = btn.dataset.ciId; btn.disabled = true; btn.textContent = '...';
             fetch('/api/cart/remove/' + ciId, { method: 'DELETE' })
-                .then(function (r) { return r.json(); })
-                .then(function (data) {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        showToast('Error: ' + data.error, 'error');
-                        btn.disabled = false;
-                    }
-                });
+                .then(r => r.json()).then(d => { if (d.success) location.reload(); else showToast(d.error, 'error'); });
         }
-
         function updateQty(btn, delta) {
             const ciId = btn.dataset.ciId;
             const card = btn.closest('.cart-item-card');
             const qtyEl = card.querySelector('.qty-num');
             const newQty = parseInt(qtyEl.textContent) + delta;
-            if (newQty < 1) {
-                const removeBtn = card.querySelector('[onclick*="removeItem"]');
-                removeBtn.click();
-                return;
-            }
+            if (newQty < 1) { card.querySelector('[onclick*="removeItem"]').click(); return; }
             fetch('/api/cart/update/' + ciId + '?quantity=' + newQty, { method: 'PUT' })
-                .then(function (r) { return r.json(); })
-                .then(function (data) {
-                    if (data.success) { location.reload(); }
-                    else { showToast('Error: ' + data.error, 'error'); }
-                });
+                .then(r => r.json()).then(d => { if (d.success) location.reload(); else showToast(d.error, 'error'); });
         }
-
         function openCheckout() {
-            const totalEl = document.getElementById('cart-total');
-            document.getElementById('modal-total').textContent = totalEl.textContent;
+            document.getElementById('modal-total').textContent = document.getElementById('cart-total').textContent;
             document.getElementById('checkout-modal').classList.add('open');
         }
-
-        function closeCheckout() {
-            document.getElementById('checkout-modal').classList.remove('open');
-        }
-
+        function closeCheckout() { document.getElementById('checkout-modal').classList.remove('open'); }
         function confirmCheckout() {
             const btn = document.getElementById('confirm-checkout-btn');
-            btn.disabled = true;
-            btn.textContent = 'Processing...';
+            btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Processing...';
             fetch('/api/checkout', { method: 'POST' })
-                .then(function (r) { return r.json(); })
-                .then(function (data) {
-                    if (data.success) {
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
                         closeCheckout();
-                        showToast('Order #' + data.orderId + ' placed! Paid ' + data.totalPaid + 'kg of trash!', 'success');
-                        setTimeout(function () { window.location.href = '/orders'; }, 2000);
+                        showToast('Order #' + d.orderId + ' placed!', 'success');
+                        setTimeout(() => window.location.href = '/orders', 1500);
                     } else {
-                        closeCheckout();
-                        showToast('Error: ' + data.error, 'error');
-                        btn.disabled = false;
-                        btn.textContent = 'Confirm Purchase';
+                        closeCheckout(); showToast(d.error, 'error');
+                        btn.disabled = false; btn.textContent = 'Confirm';
                     }
                 });
         }

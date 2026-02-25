@@ -4,347 +4,233 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Trash Scanner - Trash Store</title>
+    <title>Trash Scanner — Trash Store</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
     <style>
-        .scanner-grid {
+        .trash-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 0.85rem;
+            margin-bottom: 1.5rem;
         }
 
-        .trash-type-card {
+        .trash-card {
             background: var(--bg-card);
-            border: 2px solid var(--border-glass);
-            border-radius: var(--radius);
-            padding: 1.5rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 0.75rem;
             text-align: center;
             cursor: pointer;
             transition: var(--transition);
-            position: relative;
         }
 
-        .trash-type-card:hover {
-            border-color: var(--accent-green);
-            transform: translateY(-3px);
-            box-shadow: 0 0 20px rgba(57, 255, 20, 0.1);
+        .trash-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
-        .trash-type-card.selected {
-            border-color: var(--accent-green);
-            background: rgba(57, 255, 20, 0.07);
+        .trash-card.selected {
+            border-color: var(--accent);
+            background: var(--accent-light);
         }
 
-        .trash-type-card.selected::after {
+        .trash-card.selected::after {
             content: '✓';
             position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: var(--accent-green);
-            color: #000;
-            width: 22px;
-            height: 22px;
+            top: 0.4rem;
+            right: 0.4rem;
+            background: var(--accent);
+            color: #fff;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
         }
 
+        .trash-card {
+            position: relative;
+        }
+
         .trash-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            margin-bottom: 0.4rem;
             display: block;
         }
 
         .trash-name {
+            font-size: 0.8rem;
             font-weight: 700;
-            font-size: 0.88rem;
-            margin-bottom: 0.3rem;
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
         }
 
-        .trash-weight {
-            color: var(--accent-amber);
-            font-weight: 600;
-            font-size: 0.85rem;
+        .trash-kg {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent);
         }
 
         .scan-panel {
             background: var(--bg-card);
-            border: 1px solid var(--border-glass);
-            border-radius: var(--radius);
-            padding: 2rem;
-            max-width: 480px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            max-width: 440px;
             margin: 0 auto;
-        }
-
-        .scan-panel h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-        }
-
-        .qty-input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border-glass);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 1.1rem;
-            font-weight: 700;
-            outline: none;
-            text-align: center;
-            transition: var(--transition);
-            margin-bottom: 1.2rem;
-        }
-
-        .qty-input:focus {
-            border-color: var(--accent-green);
-        }
-
-        .earn-preview {
-            text-align: center;
-            margin: 1rem 0;
-            padding: 1rem;
-            background: rgba(57, 255, 20, 0.05);
-            border-radius: 10px;
-            border: 1px solid rgba(57, 255, 20, 0.15);
-        }
-
-        .earn-preview .earn-amount {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--accent-green);
-        }
-
-        .earn-preview p {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        .scan-btn {
-            width: 100%;
-            padding: 0.9rem;
-            background: var(--accent-green);
-            color: #000;
-            font-size: 1rem;
-            font-weight: 700;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .scan-btn:hover:not(:disabled) {
-            background: #2de00f;
-            box-shadow: 0 0 25px rgba(57, 255, 20, 0.4);
-            transform: translateY(-1px);
-        }
-
-        .scan-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .alert {
-            padding: 0.9rem 1.1rem;
-            border-radius: 10px;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-        }
-
-        .alert-success {
-            background: rgba(57, 255, 20, 0.1);
-            border: 1px solid rgba(57, 255, 20, 0.3);
-            color: var(--accent-green);
-        }
-
-        .alert-error {
-            background: rgba(255, 68, 68, 0.1);
-            border: 1px solid rgba(255, 68, 68, 0.3);
-            color: #ff7777;
-        }
-
-        .balance-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            background: rgba(57, 255, 20, 0.08);
-            border: 1px solid rgba(57, 255, 20, 0.2);
-            border-radius: 50px;
-            padding: 0.4rem 1rem;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--accent-green);
-            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
         }
     </style>
 </head>
 
 <body>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <a href="/" class="navbar-brand">
-            <span class="logo-icon">&#x1F5D1;</span>
-            <div class="brand-name">Trash<span>Store</span></div>
-        </a>
+    <nav class="navbar" id="navbar">
+        <a href="/" class="navbar-brand"><span class="logo-icon">♻</span> Trash<span>Store</span></a>
         <ul class="navbar-links">
             <li><a href="/">Home</a></li>
             <li><a href="/shop">Shop</a></li>
-            <li><a href="/trash-scan" class="active">&#x267B; Trash Scan</a></li>
-            <li><a href="/orders">My Orders</a></li>
+            <li><a href="/trash-scan" class="active">Scan Trash</a></li>
+            <li><a href="/orders">Orders</a></li>
+            <li th:if="${user.admin}"><a href="/admin">Admin</a></li>
         </ul>
         <div class="navbar-right">
-            <div class="trash-balance">
-                &#x267B; <span th:text="${user.trashBalance} + 'kg'">500kg</span>
-            </div>
-            <a href="/cart" class="cart-btn">&#x1F6D2; Cart</a>
+            <div class="trash-balance">♻ <span th:text="${user.trashBalance} + ' kg'">0kg</span></div>
+            <a href="/cart" class="cart-btn">🛒</a>
             <form th:action="@{/logout}" method="post" style="margin:0;">
-                <button type="submit" class="btn btn-outline btn-sm" style="border-radius:50px;">Sign Out</button>
+                <button type="submit" class="btn btn-outline btn-sm">Sign Out</button>
             </form>
         </div>
     </nav>
 
-    <!-- CONTENT -->
     <div class="page-header">
-        <h1>&#x267B; <span style="color:var(--accent-green)">Trash</span> Scanner</h1>
-        <p>Deposit your trash here to earn kg balance. Use it to buy items in the store!</p>
+        <h1>Trash <span>Scanner</span></h1>
+        <p>Deposit recyclables to earn kg balance — then spend it in the store!</p>
     </div>
 
-    <section class="section" style="padding-top:1rem;">
+    <section class="section" style="padding-top:1.5rem;">
+        <div th:if="${success}"
+            style="background:var(--accent-light);border:1px solid var(--border-accent);color:var(--accent);padding:0.85rem 1rem;border-radius:var(--radius-sm);margin-bottom:1.5rem;font-size:0.875rem;"
+            th:text="${success}"></div>
+        <div th:if="${error}"
+            style="background:#fee2e2;border:1px solid #fecaca;color:var(--accent-red);padding:0.85rem 1rem;border-radius:var(--radius-sm);margin-bottom:1.5rem;font-size:0.875rem;"
+            th:text="${error}"></div>
 
-        <!-- Flash messages -->
-        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
-        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
-
-        <!-- Current balance -->
-        <div style="text-align:center; margin-bottom:1.5rem;">
-            <div class="balance-pill">
-                &#x267B; Current balance: <span th:text="${user.trashBalance} + 'kg'">500kg</span>
+        <!-- Current Balance -->
+        <div style="text-align:center;margin-bottom:2rem;">
+            <div
+                style="display:inline-flex;align-items:center;gap:0.4rem;background:var(--accent-light);color:var(--accent);padding:0.5rem 1.25rem;border-radius:50px;font-size:0.9rem;font-weight:700;border:1px solid var(--border-accent);">
+                ♻ Balance: <span th:text="${user.trashBalance} + ' kg'">0 kg</span>
             </div>
         </div>
 
-        <!-- How it works -->
-        <div
-            style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:1rem; margin-bottom:2.5rem;">
-            <div
-                style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius); padding:1.2rem; text-align:center;">
-                <div style="font-size:2rem; margin-bottom:0.5rem;">1&#xFE0F;&#x20E3;</div>
-                <div style="font-weight:700; margin-bottom:0.3rem;">Pick Trash Type</div>
-                <div style="font-size:0.82rem; color:var(--text-muted);">Select the category of trash you're depositing
-                </div>
-            </div>
-            <div
-                style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius); padding:1.2rem; text-align:center;">
-                <div style="font-size:2rem; margin-bottom:0.5rem;">2&#xFE0F;&#x20E3;</div>
-                <div style="font-weight:700; margin-bottom:0.3rem;">Enter Quantity</div>
-                <div style="font-size:0.82rem; color:var(--text-muted);">How many units are you depositing today?</div>
-            </div>
-            <div
-                style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:var(--radius); padding:1.2rem; text-align:center;">
-                <div style="font-size:2rem; margin-bottom:0.5rem;">3&#xFE0F;&#x20E3;</div>
-                <div style="font-weight:700; margin-bottom:0.3rem;">Earn Balance</div>
-                <div style="font-size:0.82rem; color:var(--text-muted);">Your trash kg balance is instantly updated!
-                </div>
-            </div>
+        <!-- Step 1: Select Trash Type -->
+        <div style="margin-bottom:0.75rem;">
+            <h2 style="font-size:1rem;font-weight:700;color:var(--text-primary);">Step 1: Select Trash Type</h2>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;">Pick the category of recyclable
+                you're depositing</p>
         </div>
-
-        <!-- Trash Type Selector -->
-        <h2 class="section-title mb-2" style="margin-bottom:1rem;">Step 1: Select Trash Type</h2>
-        <div class="scanner-grid" id="trash-grid">
-            <div class="trash-type-card" data-type="plastic_bottle" data-kg="0.5" onclick="selectTrash(this)">
-                <span class="trash-icon">&#x1F9F4;</span>
+        <div class="trash-grid">
+            <div class="trash-card" data-type="plastic_bottle" data-kg="0.5" onclick="selectTrash(this)">
+                <span class="trash-icon">🧴</span>
                 <div class="trash-name">Plastic Bottle</div>
-                <div class="trash-weight">0.5kg / unit</div>
+                <div class="trash-kg">+0.5 kg</div>
             </div>
-            <div class="trash-type-card" data-type="glass_bottle" data-kg="1.0" onclick="selectTrash(this)">
-                <span class="trash-icon">&#x1F37E;</span>
+            <div class="trash-card" data-type="glass_bottle" data-kg="1.0" onclick="selectTrash(this)">
+                <span class="trash-icon">🍾</span>
                 <div class="trash-name">Glass Bottle</div>
-                <div class="trash-weight">1.0kg / unit</div>
+                <div class="trash-kg">+1.0 kg</div>
             </div>
-            <div class="trash-type-card" data-type="aluminium_can" data-kg="0.3" onclick="selectTrash(this)">
-                <span class="trash-icon">&#x1F9C3;</span>
+            <div class="trash-card" data-type="aluminium_can" data-kg="0.3" onclick="selectTrash(this)">
+                <span class="trash-icon">🥤</span>
                 <div class="trash-name">Aluminium Can</div>
-                <div class="trash-weight">0.3kg / unit</div>
+                <div class="trash-kg">+0.3 kg</div>
             </div>
-            <div class="trash-type-card" data-type="cardboard_box" data-kg="2.0" onclick="selectTrash(this)">
-                <span class="trash-icon">&#x1F4E6;</span>
+            <div class="trash-card" data-type="cardboard_box" data-kg="2.0" onclick="selectTrash(this)">
+                <span class="trash-icon">📦</span>
                 <div class="trash-name">Cardboard Box</div>
-                <div class="trash-weight">2.0kg / unit</div>
+                <div class="trash-kg">+2.0 kg</div>
             </div>
-            <div class="trash-type-card" data-type="old_newspaper" data-kg="0.8" onclick="selectTrash(this)">
-                <span class="trash-icon">&#x1F4F0;</span>
-                <div class="trash-name">Old Newspaper</div>
-                <div class="trash-weight">0.8kg / unit</div>
+            <div class="trash-card" data-type="old_newspaper" data-kg="0.8" onclick="selectTrash(this)">
+                <span class="trash-icon">📰</span>
+                <div class="trash-name">Newspaper</div>
+                <div class="trash-kg">+0.8 kg</div>
             </div>
-            <div class="trash-type-card" data-type="electronic_part" data-kg="5.0" onclick="selectTrash(this)">
-                <span class="trash-icon">&#x1F4BB;</span>
+            <div class="trash-card" data-type="electronic_part" data-kg="5.0" onclick="selectTrash(this)">
+                <span class="trash-icon">💻</span>
                 <div class="trash-name">Electronic Part</div>
-                <div class="trash-weight">5.0kg / unit</div>
+                <div class="trash-kg">+5.0 kg ⭐</div>
             </div>
-            <div class="trash-type-card" data-type="metal_scrap" data-kg="3.0" onclick="selectTrash(this)">
-                <span class="trash-icon">&#x1F527;</span>
+            <div class="trash-card" data-type="metal_scrap" data-kg="3.0" onclick="selectTrash(this)">
+                <span class="trash-icon">🔧</span>
                 <div class="trash-name">Metal Scrap</div>
-                <div class="trash-weight">3.0kg / unit</div>
+                <div class="trash-kg">+3.0 kg</div>
             </div>
-            <div class="trash-type-card" data-type="wood_plank" data-kg="4.0" onclick="selectTrash(this)">
-                <span class="trash-icon">&#x1FAB5;</span>
+            <div class="trash-card" data-type="wood_plank" data-kg="4.0" onclick="selectTrash(this)">
+                <span class="trash-icon">🪵</span>
                 <div class="trash-name">Wood Plank</div>
-                <div class="trash-weight">4.0kg / unit</div>
+                <div class="trash-kg">+4.0 kg</div>
             </div>
         </div>
 
-        <!-- Quantity & Submit -->
+        <!-- Step 2: Quantity & Submit -->
         <div class="scan-panel">
-            <h3>Step 2: Enter Quantity &amp; Scan</h3>
-            <form th:action="@{/trash-scan/submit}" method="post" id="scan-form">
+            <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:1.25rem;">Step 2: How Many?</h3>
+            <form th:action="@{/trash-scan/submit}" method="post">
                 <input type="hidden" name="trashType" id="selected-type" value="" />
-                <label
-                    style="font-size:0.85rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:0.5rem;">
-                    How many units?
-                </label>
-                <input type="number" id="qty-input" name="quantity" class="qty-input" value="1" min="1" max="100"
-                    oninput="updatePreview()" />
-                <div class="earn-preview">
-                    <div class="earn-amount" id="earn-preview">Select a trash type first</div>
-                    <p>You will earn</p>
+                <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+                    <button type="button" onclick="changeQty(-1)"
+                        style="width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:var(--bg-main);font-size:1.2rem;cursor:pointer;font-weight:700;transition:var(--transition);">−</button>
+                    <input type="number" id="qty-input" name="quantity" value="1" min="1" max="100"
+                        style="flex:1;padding:0.6rem;text-align:center;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:1.1rem;font-weight:700;font-family:inherit;background:var(--bg-main);color:var(--text-primary);outline:none;"
+                        oninput="updatePreview()" />
+                    <button type="button" onclick="changeQty(1)"
+                        style="width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:var(--bg-main);font-size:1.2rem;cursor:pointer;font-weight:700;transition:var(--transition);">+</button>
                 </div>
-                <button type="submit" class="scan-btn" id="scan-btn" disabled>
-                    &#x267B; Scan &amp; Deposit Trash
+                <div
+                    style="text-align:center;padding:1rem;background:var(--bg-card2);border-radius:var(--radius-sm);margin-bottom:1rem;border:1px solid var(--border);">
+                    <div id="earn-preview" style="font-size:1.8rem;font-weight:800;color:var(--accent);">Select type
+                    </div>
+                    <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.2rem;">you will earn</div>
+                </div>
+                <button type="submit" id="scan-btn" class="btn btn-primary btn-full btn-lg" disabled>
+                    ♻ Deposit &amp; Earn
                 </button>
             </form>
         </div>
-
     </section>
 
-    <!-- FOOTER -->
     <footer class="footer">
-        <p>&#x1F5D1; <span>TrashStore</span> - Scan trash, earn balance, shop responsibly!</p>
+        <p>♻ <span>TrashStore</span> — Turning waste into worth</p>
     </footer>
-
     <script>
-        let selectedKg = 0;
-
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('navbar-scroll-active', window.scrollY > 10);
+        });
+        let selKg = 0;
         function selectTrash(card) {
-            document.querySelectorAll('.trash-type-card').forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('.trash-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             document.getElementById('selected-type').value = card.dataset.type;
-            selectedKg = parseFloat(card.dataset.kg);
+            selKg = parseFloat(card.dataset.kg);
             updatePreview();
             document.getElementById('scan-btn').disabled = false;
         }
-
         function updatePreview() {
             const qty = parseInt(document.getElementById('qty-input').value) || 1;
-            if (selectedKg > 0) {
-                const earned = (selectedKg * qty).toFixed(1);
-                document.getElementById('earn-preview').textContent = earned + 'kg of trash';
+            if (selKg > 0) {
+                document.getElementById('earn-preview').textContent = '+' + (selKg * qty).toFixed(1) + ' kg';
             }
+        }
+        function changeQty(delta) {
+            const inp = document.getElementById('qty-input');
+            const newVal = Math.max(1, Math.min(100, parseInt(inp.value || 1) + delta));
+            inp.value = newVal;
+            updatePreview();
         }
     </script>
 </body>

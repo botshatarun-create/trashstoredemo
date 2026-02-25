@@ -5,63 +5,60 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Trash Store — Buy Things With Trash</title>
-  <meta name="description"
-    content="The world's first store where you trade trash for treasure. Unique, reclaimed, and upcycled items for the eco-conscious shopper." />
+  <meta name="description" content="The world's first upcycled marketplace. Trade trash for treasure." />
   <link rel="stylesheet" th:href="@{/css/style.css}" />
-  <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗑️</text></svg>" />
 </head>
 
 <body>
 
-  <!-- NAVBAR -->
-  <nav class="navbar">
-    <a href="/" class="navbar-brand">
-      <span class="logo-icon">🗑️</span>
-      <div class="brand-name">Trash<span>Store</span></div>
-    </a>
+  <nav class="navbar" id="navbar">
+    <a href="/" class="navbar-brand"><span class="logo-icon">♻</span> Trash<span>Store</span></a>
     <ul class="navbar-links">
       <li><a href="/" class="active">Home</a></li>
       <li><a href="/shop">Shop</a></li>
-      <li><a href="/trash-scan">&#x267B; Trash Scan</a></li>
-      <li><a href="/orders">My Orders</a></li>
+      <li><a href="/trash-scan">Scan Trash</a></li>
+      <li><a href="/orders">Orders</a></li>
+      <li th:if="${user.admin}"><a href="/admin">Admin</a></li>
     </ul>
     <div class="navbar-right">
-      <div class="trash-balance">
-        &#x267B; <span id="balance-display" th:text="${user.trashBalance} + 'kg'">500kg</span>
-      </div>
+      <a href="/profile"
+        style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;font-weight:600;color:var(--text-secondary);">
+        <span
+          style="width:28px;height:28px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;"
+          th:text="${#strings.substring(user.username,0,1).toUpperCase()}">T</span>
+        <span th:text="${user.username}">User</span>
+      </a>
+      <div class="trash-balance">♻ <span th:text="${user.trashBalance} + ' kg'">0kg</span></div>
       <a href="/cart" class="cart-btn">
-        &#x1F6D2; Cart
+        🛒 Cart
         <span class="cart-badge" id="cart-badge" th:text="${cart.totalItems}"
           th:style="${cart.totalItems == 0} ? 'display:none' : 'display:flex'">0</span>
       </a>
       <form th:action="@{/logout}" method="post" style="margin:0;">
-        <button type="submit" class="btn btn-outline btn-sm" style="border-radius:50px;">Sign Out</button>
+        <button type="submit" class="btn btn-outline btn-sm">Sign Out</button>
       </form>
     </div>
   </nav>
 
-  <!-- HERO -->
   <section class="hero">
-    <div class="hero-tag">♻️ Eco-Commerce Revolution</div>
+    <div class="hero-tag">♻ Eco-Commerce Revolution</div>
     <h1>Buy Things<br>With <span class="highlight">Trash</span></h1>
-    <p>The world's first upcycled marketplace. Trade your trash for one-of-a-kind treasures. Every purchase is a win for
-      the planet.</p>
+    <p>The world's first upcycled marketplace. Trade your trash for one-of-a-kind treasures. Scan trash to earn balance,
+      then shop!</p>
     <div class="hero-actions">
-      <a href="/shop" class="btn btn-primary">🛍️ Shop Now</a>
-      <a href="/orders" class="btn btn-outline">📦 My Orders</a>
+      <a href="/shop" class="btn btn-primary btn-lg">🛍 Browse Shop</a>
+      <a href="/trash-scan" class="btn btn-outline btn-lg">♻ Scan Trash</a>
     </div>
   </section>
 
-  <!-- STATS -->
   <div class="stats-bar">
     <div class="stat-item">
-      <div class="stat-value">12+</div>
+      <div class="stat-value">12</div>
       <div class="stat-label">Unique Items</div>
     </div>
     <div class="stat-item">
-      <div class="stat-value" th:text="${user.trashBalance} + 'kg'">500kg</div>
-      <div class="stat-label">Your Trash Balance</div>
+      <div class="stat-value" th:text="${user.trashBalance} + ' kg'">0 kg</div>
+      <div class="stat-label">Your Balance</div>
     </div>
     <div class="stat-item">
       <div class="stat-value">100%</div>
@@ -73,18 +70,22 @@
     </div>
   </div>
 
-  <!-- FEATURED ITEMS -->
   <section class="section">
-    <div class="section-header">
-      <h2 class="section-title">Featured <span>Finds</span></h2>
-      <a href="/shop" class="btn btn-outline btn-sm">View All →</a>
+    <div class="section-header fade-up">
+      <div>
+        <h2 class="section-title">Featured <span>Finds</span></h2>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">Hand-picked upcycled treasures</p>
+      </div>
+      <a href="/shop" class="btn btn-outline">View All &rarr;</a>
     </div>
     <div class="product-grid">
-      <div th:each="item : ${featuredItems}" class="product-card">
+      <div th:each="item, stat : ${featuredItems}" class="product-card"
+        th:style="'animation-delay:' + ${stat.index * 0.08} + 's'"
+        th:onclick="'window.location.href=\'/shop/item/' + ${item.id} + '\''">
         <div class="product-img-wrap">
           <img th:src="${item.imageUrl}" th:alt="${item.name}" loading="lazy"
-            onerror="this.src='https://via.placeholder.com/400x200/111118/39ff14?text=♻️+Item'" />
-          <span th:if="${item.inStock}" class="product-badge">In Stock</span>
+            onerror="this.src='https://picsum.photos/400/300?grayscale'" />
+          <span th:if="${item.inStock}" class="product-badge" th:text="${item.stockQuantity} + ' left'">In Stock</span>
           <span th:unless="${item.inStock}" class="product-badge out-of-stock">Sold Out</span>
         </div>
         <div class="product-body">
@@ -93,12 +94,12 @@
           <p class="product-desc" th:text="${item.description}">Description</p>
           <div class="product-footer">
             <div class="product-price">
-              <span th:text="${item.trashPrice} + 'kg'">5kg</span>
+              <span th:text="${item.trashPrice} + ' kg'">5 kg</span>
               <small>of trash</small>
             </div>
             <button class="add-to-cart-btn" th:disabled="${!item.inStock}" th:attr="data-item-id=${item.id}"
-              onclick="addToCart(this)">
-              + Add
+              onclick="addToCart(event, this)">
+              + Add to Cart
             </button>
           </div>
         </div>
@@ -106,38 +107,78 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
+  <!-- How It Works -->
+  <section
+    style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:3rem 2rem;">
+    <div style="max-width:900px;margin:0 auto;text-align:center;">
+      <h2 class="section-title mb-2" style="margin-bottom:1.5rem;">How It <span>Works</span></h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;">
+        <div class="fade-up-delay-1"
+          style="padding:1.5rem;background:var(--bg-main);border-radius:var(--radius-lg);border:1px solid var(--border);">
+          <div style="font-size:2rem;margin-bottom:0.75rem;">♻️</div>
+          <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:0.4rem;">1. Collect Trash</h3>
+          <p style="font-size:0.8rem;color:var(--text-muted);">Gather plastic, glass, electronics, or other recyclables
+            from around you</p>
+        </div>
+        <div class="fade-up-delay-2"
+          style="padding:1.5rem;background:var(--bg-main);border-radius:var(--radius-lg);border:1px solid var(--border);">
+          <div style="font-size:2rem;margin-bottom:0.75rem;">📱</div>
+          <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:0.4rem;">2. Scan & Earn</h3>
+          <p style="font-size:0.8rem;color:var(--text-muted);">Use our Trash Scanner to log your items and earn kg
+            balance instantly</p>
+        </div>
+        <div class="fade-up-delay-3"
+          style="padding:1.5rem;background:var(--bg-main);border-radius:var(--radius-lg);border:1px solid var(--border);">
+          <div style="font-size:2rem;margin-bottom:0.75rem;">🛍️</div>
+          <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:0.4rem;">3. Shop & Enjoy</h3>
+          <p style="font-size:0.8rem;color:var(--text-muted);">Spend your trash balance on unique upcycled items from
+            our store</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <footer class="footer">
-    <p>🗑️ <span>TrashStore</span> — Turning waste into worth · Built with Spring Boot & ♻️</p>
+    <p>♻ <span>TrashStore</span> — Turning waste into worth &middot; &copy; 2025</p>
   </footer>
 
-  <!-- TOAST CONTAINER -->
   <div class="toast-container" id="toast-container"></div>
 
-  <script th:inline="javascript">
-    function addToCart(btn) {
+  <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('navbar-scroll-active', window.scrollY > 10);
+    });
+
+    function addToCart(e, btn) {
+      e.stopPropagation();
       const itemId = btn.dataset.itemId;
-      fetch(`/api/cart/add/${itemId}`, { method: 'POST' })
+      const orig = btn.textContent;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>';
+      fetch('/api/cart/add/' + itemId, { method: 'POST' })
         .then(r => r.json())
         .then(data => {
+          btn.disabled = false;
+          btn.textContent = orig;
           if (data.success) {
-            showToast('✅ Added to cart!', 'success');
+            showToast('Added to cart!', 'success');
             const badge = document.getElementById('cart-badge');
             badge.textContent = data.cartCount;
             badge.style.display = 'flex';
           } else {
-            showToast('❌ ' + data.error, 'error');
+            showToast(data.error, 'error');
           }
-        }).catch(() => showToast('❌ Network error', 'error'));
+        });
     }
 
     function showToast(msg, type) {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
+      toast.className = 'toast ' + type;
       toast.textContent = msg;
       container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3500);
+      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
     }
   </script>
 </body>

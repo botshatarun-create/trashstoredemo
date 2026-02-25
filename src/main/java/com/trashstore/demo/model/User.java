@@ -17,10 +17,12 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    private String password; // BCrypt hashed
+    private String password;
 
     @Column(precision = 10, scale = 2)
     private BigDecimal trashBalance;
+
+    private String role = "USER"; // USER or ADMIN
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Cart cart;
@@ -34,7 +36,6 @@ public class User {
         this.trashBalance = trashBalance;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -75,11 +76,23 @@ public class User {
         this.trashBalance = trashBalance;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public Cart getCart() {
         return cart;
     }
 
     public void setCart(Cart cart) {
         this.cart = cart;
+    }
+
+    public boolean isAdmin() {
+        return "ADMIN".equals(role);
     }
 }

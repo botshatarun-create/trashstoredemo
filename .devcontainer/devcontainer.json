@@ -28,7 +28,7 @@
             "visibility": "public"
         }
     },
-    "postCreateCommand": "chmod +x mvnw && ./mvnw -DskipTests clean install",
+    "postCreateCommand": "sed -i 's/\\r$//' mvnw && chmod +x mvnw && ./mvnw -DskipTests clean install",
     "postStartCommand": "./mvnw spring-boot:run",
     "remoteUser": "vscode"
 }

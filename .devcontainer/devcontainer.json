@@ -19,10 +19,10 @@
         }
     },
     "forwardPorts": [
-        9091
+        8080
     ],
     "portsAttributes": {
-        "9091": {
+        "8080": {
             "label": "Trash Store Web App",
             "onAutoForward": "openBrowser",
             "visibility": "public"

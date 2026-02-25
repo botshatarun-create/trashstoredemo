@@ -18,7 +18,9 @@
             ]
         }
     },
-    "forwardPorts": [9091],
+    "forwardPorts": [
+        9091
+    ],
     "portsAttributes": {
         "9091": {
             "label": "Trash Store Web App",
@@ -27,5 +29,6 @@
         }
     },
     "postCreateCommand": "mvn -DskipTests clean install",
+    "postStartCommand": "mvn spring-boot:run",
     "remoteUser": "vscode"
 }

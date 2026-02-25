@@ -1,6 +1,7 @@
 package com.trashstore.demo.model;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "cart_items")
@@ -60,5 +61,11 @@ public class CartItem {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public BigDecimal getSubtotal() {
+        if (item == null || item.getTrashPrice() == null)
+            return BigDecimal.ZERO;
+        return item.getTrashPrice().multiply(new BigDecimal(quantity));
     }
 }

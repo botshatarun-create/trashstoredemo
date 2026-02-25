@@ -8,6 +8,7 @@ import com.trashstore.demo.repository.UserRepository;
 import com.trashstore.demo.service.CheckoutService;
 import com.trashstore.demo.service.ShopService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -16,8 +17,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class CartApiController {
-
-    private static final Long DEFAULT_USER_ID = 1L;
 
     private final ShopService shopService;
     private final CheckoutService checkoutService;
@@ -32,12 +31,17 @@ public class CartApiController {
         this.orderRepo = orderRepo;
     }
 
+    private User getUser(Authentication auth) {
+        return userRepo.findByUsername(auth.getName()).orElseThrow();
+    }
+
     @PostMapping("/cart/add/{itemId}")
     public ResponseEntity<Map<String, Object>> addToCart(@PathVariable Long itemId,
-            @RequestParam(defaultValue = "1") int quantity) {
+            @RequestParam(defaultValue = "1") int quantity,
+            Authentication auth) {
         Map<String, Object> response = new HashMap<>();
         try {
-            Cart cart = shopService.addToCart(DEFAULT_USER_ID, itemId, quantity);
+            Cart cart = shopService.addToCart(getUser(auth).getId(), itemId, quantity);
             response.put("success", true);
             response.put("cartCount", cart.getTotalItems());
             response.put("cartTotal", cart.getTotal());
@@ -50,10 +54,11 @@ public class CartApiController {
     }
 
     @DeleteMapping("/cart/remove/{cartItemId}")
-    public ResponseEntity<Map<String, Object>> removeFromCart(@PathVariable Long cartItemId) {
+    public ResponseEntity<Map<String, Object>> removeFromCart(@PathVariable Long cartItemId,
+            Authentication auth) {
         Map<String, Object> response = new HashMap<>();
         try {
-            Cart cart = shopService.removeFromCart(DEFAULT_USER_ID, cartItemId);
+            Cart cart = shopService.removeFromCart(getUser(auth).getId(), cartItemId);
             response.put("success", true);
             response.put("cartCount", cart.getTotalItems());
             response.put("cartTotal", cart.getTotal());
@@ -67,10 +72,11 @@ public class CartApiController {
 
     @PutMapping("/cart/update/{cartItemId}")
     public ResponseEntity<Map<String, Object>> updateCartItem(@PathVariable Long cartItemId,
-            @RequestParam int quantity) {
+            @RequestParam int quantity,
+            Authentication auth) {
         Map<String, Object> response = new HashMap<>();
         try {
-            Cart cart = shopService.updateQuantity(DEFAULT_USER_ID, cartItemId, quantity);
+            Cart cart = shopService.updateQuantity(getUser(auth).getId(), cartItemId, quantity);
             response.put("success", true);
             response.put("cartCount", cart.getTotalItems());
             response.put("cartTotal", cart.getTotal());
@@ -83,15 +89,16 @@ public class CartApiController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<Map<String, Object>> checkout() {
+    public ResponseEntity<Map<String, Object>> checkout(Authentication auth) {
         Map<String, Object> response = new HashMap<>();
         try {
-            Order order = checkoutService.checkout(DEFAULT_USER_ID);
-            User user = userRepo.findById(DEFAULT_USER_ID).orElseThrow();
+            User user = getUser(auth);
+            Order order = checkoutService.checkout(user.getId());
+            User updated = userRepo.findById(user.getId()).orElseThrow();
             response.put("success", true);
             response.put("orderId", order.getId());
             response.put("totalPaid", order.getTotalTrashPaid());
-            response.put("newBalance", user.getTrashBalance());
+            response.put("newBalance", updated.getTrashBalance());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("success", false);
@@ -101,9 +108,9 @@ public class CartApiController {
     }
 
     @GetMapping("/user/balance")
-    public ResponseEntity<Map<String, Object>> getBalance() {
-        User user = userRepo.findById(DEFAULT_USER_ID).orElseThrow();
-        Cart cart = shopService.getOrCreateCart(DEFAULT_USER_ID);
+    public ResponseEntity<Map<String, Object>> getBalance(Authentication auth) {
+        User user = getUser(auth);
+        Cart cart = shopService.getOrCreateCart(user.getId());
         Map<String, Object> response = new HashMap<>();
         response.put("balance", user.getTrashBalance());
         response.put("cartCount", cart.getTotalItems());
@@ -111,8 +118,8 @@ public class CartApiController {
     }
 
     @GetMapping("/orders")
-    public ResponseEntity<?> getOrders() {
-        User user = userRepo.findById(DEFAULT_USER_ID).orElseThrow();
+    public ResponseEntity<?> getOrders(Authentication auth) {
+        User user = getUser(auth);
         return ResponseEntity.ok(orderRepo.findByUserOrderByCreatedAtDesc(user));
     }
 }

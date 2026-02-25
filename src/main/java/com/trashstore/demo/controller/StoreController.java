@@ -5,6 +5,7 @@ import com.trashstore.demo.model.User;
 import com.trashstore.demo.repository.ItemRepository;
 import com.trashstore.demo.repository.UserRepository;
 import com.trashstore.demo.service.ShopService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -13,8 +14,6 @@ import java.util.List;
 
 @Controller
 public class StoreController {
-
-    private static final Long DEFAULT_USER_ID = 1L;
 
     private final ItemRepository itemRepo;
     private final UserRepository userRepo;
@@ -26,22 +25,24 @@ public class StoreController {
         this.shopService = shopService;
     }
 
-    private User getUser() {
-        return userRepo.findById(DEFAULT_USER_ID).orElseThrow();
+    private User getUser(Authentication auth) {
+        return userRepo.findByUsername(auth.getName()).orElseThrow();
     }
 
     @GetMapping("/")
-    public String home(Model model) {
-        model.addAttribute("user", getUser());
+    public String home(Model model, Authentication auth) {
+        User user = getUser(auth);
+        model.addAttribute("user", user);
         model.addAttribute("featuredItems", itemRepo.findAll().stream().limit(4).toList());
-        model.addAttribute("cart", shopService.getOrCreateCart(DEFAULT_USER_ID));
+        model.addAttribute("cart", shopService.getOrCreateCart(user.getId()));
         return "index";
     }
 
     @GetMapping("/shop")
-    public String shop(Model model,
+    public String shop(Model model, Authentication auth,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String search) {
+        User user = getUser(auth);
         List<Item> items;
         if (search != null && !search.isBlank()) {
             items = itemRepo.findByNameContainingIgnoreCase(search);
@@ -51,27 +52,29 @@ public class StoreController {
             items = itemRepo.findAll();
         }
 
-        model.addAttribute("user", getUser());
+        model.addAttribute("user", user);
         model.addAttribute("items", items);
         model.addAttribute("categories", itemRepo.findAll().stream()
                 .map(Item::getCategory).distinct().sorted().toList());
-        model.addAttribute("cart", shopService.getOrCreateCart(DEFAULT_USER_ID));
+        model.addAttribute("cart", shopService.getOrCreateCart(user.getId()));
         model.addAttribute("selectedCategory", category);
         model.addAttribute("search", search);
         return "shop";
     }
 
     @GetMapping("/cart")
-    public String cart(Model model) {
-        model.addAttribute("user", getUser());
-        model.addAttribute("cart", shopService.getOrCreateCart(DEFAULT_USER_ID));
+    public String cart(Model model, Authentication auth) {
+        User user = getUser(auth);
+        model.addAttribute("user", user);
+        model.addAttribute("cart", shopService.getOrCreateCart(user.getId()));
         return "cart";
     }
 
     @GetMapping("/orders")
-    public String orders(Model model) {
-        model.addAttribute("user", getUser());
-        model.addAttribute("cart", shopService.getOrCreateCart(DEFAULT_USER_ID));
+    public String orders(Model model, Authentication auth) {
+        User user = getUser(auth);
+        model.addAttribute("user", user);
+        model.addAttribute("cart", shopService.getOrCreateCart(user.getId()));
         return "orders";
     }
 }

@@ -33,6 +33,12 @@ public class StoreController {
         return userRepo.findByUsername(auth.getName()).orElseThrow();
     }
 
+    @GetMapping("/health")
+    @ResponseBody
+    public String health() {
+        return "App is Running!";
+    }
+
     @GetMapping("/")
     public String home(Model model, Authentication auth) {
         User user = getUser(auth);

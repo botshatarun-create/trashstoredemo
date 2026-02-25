@@ -28,6 +28,7 @@
             "visibility": "public"
         }
     },
-    "postCreateCommand": "tr -d '\\r' < mvnw > mvnw.fixed && mv mvnw.fixed mvnw && chmod +x mvnw && mvn -DskipTests clean install",
+    "postCreateCommand": "mvn -DskipTests clean install",
+    "postStartCommand": "mvn spring-boot:run",
     "remoteUser": "vscode"
 }

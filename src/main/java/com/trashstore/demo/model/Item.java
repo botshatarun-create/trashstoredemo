@@ -1,13 +1,10 @@
 package com.trashstore.demo.model;
 
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
 @Entity
+@Table(name = "items")
 public class Item {
 
     @Id
@@ -15,17 +12,30 @@ public class Item {
     private Long id;
 
     private String name;
+
+    @Column(length = 1000)
     private String description;
-    private BigDecimal price;
-    private boolean sold = false;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal trashPrice;
+
+    private Integer stockQuantity;
+
+    private String imageUrl;
+
+    private String category;
 
     public Item() {
     }
 
-    public Item(String name, String description, BigDecimal price) {
+    public Item(String name, String description, BigDecimal trashPrice, Integer stockQuantity, String imageUrl,
+            String category) {
         this.name = name;
         this.description = description;
-        this.price = price;
+        this.trashPrice = trashPrice;
+        this.stockQuantity = stockQuantity;
+        this.imageUrl = imageUrl;
+        this.category = category;
     }
 
     public Long getId() {
@@ -52,19 +62,39 @@ public class Item {
         this.description = description;
     }
 
-    public BigDecimal getPrice() {
-        return price;
+    public BigDecimal getTrashPrice() {
+        return trashPrice;
     }
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
+    public void setTrashPrice(BigDecimal trashPrice) {
+        this.trashPrice = trashPrice;
     }
 
-    public boolean isSold() {
-        return sold;
+    public Integer getStockQuantity() {
+        return stockQuantity;
     }
 
-    public void setSold(boolean sold) {
-        this.sold = sold;
+    public void setStockQuantity(Integer stockQuantity) {
+        this.stockQuantity = stockQuantity;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public boolean isInStock() {
+        return stockQuantity != null && stockQuantity > 0;
     }
 }

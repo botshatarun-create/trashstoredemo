@@ -1,0 +1,201 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.trashstore:trash-store >---------------------
+[INFO] Building Trash Store 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ trash-store ---
+[INFO] Deleting D:\webton demos\trash demo4\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ trash-store ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 5 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ trash-store ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 15 source files with javac [debug release 17] to target\classes
+[INFO] Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/OrderItem.java:[20,13] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.model.OrderItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/OrderItem.java:[30,35] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.model.OrderItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/OrderItem.java:[54,12] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.model.OrderItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/OrderItem.java:[58,25] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.model.OrderItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/CartItem.java:[19,13] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.model.CartItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/CartItem.java:[26,32] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.model.CartItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/CartItem.java:[49,12] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.model.CartItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/CartItem.java:[53,25] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.model.CartItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/repository/ItemRepository.java:[3,33] cannot find symbol
+  symbol:   class Item
+  location: package com.trashstore.demo.model
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/repository/ItemRepository.java:[7,55] cannot find symbol
+  symbol: class Item
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/repository/ItemRepository.java:[8,10] cannot find symbol
+  symbol:   class Item
+  location: interface com.trashstore.demo.repository.ItemRepository
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/repository/ItemRepository.java:[10,10] cannot find symbol
+  symbol:   class Item
+  location: interface com.trashstore.demo.repository.ItemRepository
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/repository/ItemRepository.java:[12,10] cannot find symbol
+  symbol:   class Item
+  location: interface com.trashstore.demo.repository.ItemRepository
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/Cart.java:[33,42] incompatible types: invalid method reference
+    incompatible types: java.lang.Object cannot be converted to java.math.BigDecimal
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/service/ShopService.java:[37,9] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.service.ShopService
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/service/CheckoutService.java:[55,13] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.service.CheckoutService
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[23,31] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[28,31] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[33,31] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[38,31] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[43,31] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[48,31] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[53,31] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[58,31] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[63,31] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[68,31] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[73,31] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[78,31] cannot find symbol
+  symbol:   class Item
+  location: class com.trashstore.demo.TrashStoreApplication
+[INFO] 28 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.798 s
+[INFO] Finished at: 2026-02-26T00:52:33+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project trash-store: Compilation failure: Compilation failure: 
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/OrderItem.java:[20,13] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.model.OrderItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/OrderItem.java:[30,35] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.model.OrderItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/OrderItem.java:[54,12] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.model.OrderItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/OrderItem.java:[58,25] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.model.OrderItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/CartItem.java:[19,13] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.model.CartItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/CartItem.java:[26,32] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.model.CartItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/CartItem.java:[49,12] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.model.CartItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/CartItem.java:[53,25] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.model.CartItem
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/repository/ItemRepository.java:[3,33] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: package com.trashstore.demo.model
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/repository/ItemRepository.java:[7,55] cannot find symbol
+[ERROR]   symbol: class Item
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/repository/ItemRepository.java:[8,10] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: interface com.trashstore.demo.repository.ItemRepository
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/repository/ItemRepository.java:[10,10] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: interface com.trashstore.demo.repository.ItemRepository
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/repository/ItemRepository.java:[12,10] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: interface com.trashstore.demo.repository.ItemRepository
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/model/Cart.java:[33,42] incompatible types: invalid method reference
+[ERROR]     incompatible types: java.lang.Object cannot be converted to java.math.BigDecimal
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/service/ShopService.java:[37,9] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.service.ShopService
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/service/CheckoutService.java:[55,13] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.service.CheckoutService
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[23,31] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[28,31] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[33,31] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[38,31] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[43,31] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[48,31] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[53,31] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[58,31] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[63,31] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[68,31] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[73,31] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] /D:/webton demos/trash demo4/src/main/java/com/trashstore/demo/TrashStoreApplication.java:[78,31] cannot find symbol
+[ERROR]   symbol:   class Item
+[ERROR]   location: class com.trashstore.demo.TrashStoreApplication
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

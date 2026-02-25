@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shop — Trash Store</title>
+    <meta name="description"
+        content="Browse all available trash treasures. Filter by category or search for your perfect upcycled item." />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗑️</text></svg>" />
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <span class="logo-icon">🗑️</span>
+            <div class="brand-name">Trash<span>Store</span></div>
+        </a>
+        <ul class="navbar-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/shop" class="active">Shop</a></li>
+            <li><a href="/orders">My Orders</a></li>
+        </ul>
+        <div class="navbar-right">
+            <div class="trash-balance">
+                ♻️ <span id="balance-display" th:text="${user.trashBalance} + 'kg'">500kg</span>
+            </div>
+            <a href="/cart" class="cart-btn">
+                🛒 Cart
+                <span class="cart-badge" id="cart-badge" th:text="${cart.totalItems}"
+                    th:style="${cart.totalItems == 0} ? 'display:none' : 'display:flex'">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <h1>The <span style="color:var(--accent-green)">Trash</span> Market</h1>
+        <p>Browse over 12 hand-picked upcycled goods. Filter, search, and find your treasure.</p>
+    </div>
+
+    <!-- SHOP SECTION -->
+    <section class="section" style="padding-top:1rem;">
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+            <form action="/shop" method="get">
+                <input type="text" name="search" class="search-input" placeholder="🔍 Search items..."
+                    th:value="${search}" />
+                <select name="category" class="filter-select" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"
+                        th:selected="${selectedCategory == cat}">Category</option>
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm">Search</button>
+                <a href="/shop" class="btn btn-outline btn-sm">Clear</a>
+            </form>
+        </div>
+
+        <!-- RESULTS COUNT -->
+        <p class="text-muted mb-2" style="font-size:0.85rem;" th:text="${#lists.size(items)} + ' item(s) found'">12
+            items found</p>
+
+        <!-- ITEM GRID -->
+        <div class="product-grid" th:if="${!#lists.isEmpty(items)}">
+            <div th:each="item : ${items}" class="product-card">
+                <div class="product-img-wrap">
+                    <img th:src="${item.imageUrl}" th:alt="${item.name}" loading="lazy"
+                        onerror="this.src='https://via.placeholder.com/400x200/111118/39ff14?text=♻️'" />
+                    <span th:if="${item.inStock}" class="product-badge" th:text="${item.stockQuantity} + ' left'">In
+                        Stock</span>
+                    <span th:unless="${item.inStock}" class="product-badge out-of-stock">Sold Out</span>
+                </div>
+                <div class="product-body">
+                    <div class="product-category" th:text="${item.category}">Category</div>
+                    <h3 class="product-name" th:text="${item.name}">Item Name</h3>
+                    <p class="product-desc" th:text="${item.description}">Description</p>
+                    <div class="product-footer">
+                        <div class="product-price">
+                            <span th:text="${item.trashPrice} + 'kg'">5kg</span>
+                            <small>of trash</small>
+                        </div>
+                        <button class="add-to-cart-btn" th:disabled="${!item.inStock}" th:attr="data-item-id=${item.id}"
+                            onclick="addToCart(this)">
+                            + Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EMPTY SEARCH -->
+        <div class="empty-state" th:if="${#lists.isEmpty(items)}">
+            <div class="empty-icon">🔍</div>
+            <h3>No items found</h3>
+            <p>Try a different search term or browse all categories.</p>
+            <a href="/shop" class="btn btn-primary" style="margin-top:1.2rem;">Browse All Items</a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>🗑️ <span>TrashStore</span> — Turning waste into worth · Built with Spring Boot & ♻️</p>
+    </footer>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        function addToCart(btn) {
+            const itemId = btn.dataset.itemId;
+            const original = btn.textContent;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>';
+            fetch(`/api/cart/add/${itemId}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    btn.disabled = false;
+                    btn.textContent = original;
+                    if (data.success) {
+                        showToast('✅ Added to cart!', 'success');
+                        const badge = document.getElementById('cart-badge');
+                        badge.textContent = data.cartCount;
+                        badge.style.display = 'flex';
+                    } else {
+                        showToast('❌ ' + data.error, 'error');
+                    }
+                }).catch(() => {
+                    btn.disabled = false;
+                    btn.textContent = original;
+                    showToast('❌ Network error', 'error');
+                });
+        }
+
+        function showToast(msg, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+    </script>
+</body>
+
+</html>

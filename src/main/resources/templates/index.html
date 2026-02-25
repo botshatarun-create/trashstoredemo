@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trash Store — Buy Things With Trash</title>
+  <meta name="description" content="The world's first store where you trade trash for treasure. Unique, reclaimed, and upcycled items for the eco-conscious shopper." />
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗑️</text></svg>" />
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="/" class="navbar-brand">
+    <span class="logo-icon">🗑️</span>
+    <div class="brand-name">Trash<span>Store</span></div>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="/" class="active">Home</a></li>
+    <li><a href="/shop">Shop</a></li>
+    <li><a href="/orders">My Orders</a></li>
+  </ul>
+  <div class="navbar-right">
+    <div class="trash-balance">
+      ♻️ <span id="balance-display" th:text="${user.trashBalance} + 'kg'">500kg</span>
+    </div>
+    <a href="/cart" class="cart-btn">
+      🛒 Cart
+      <span class="cart-badge" id="cart-badge" th:text="${cart.totalItems}" th:if="${cart.totalItems > 0}" th:style="${cart.totalItems == 0} ? 'display:none' : ''">0</span>
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">♻️ Eco-Commerce Revolution</div>
+  <h1>Buy Things<br>With <span class="highlight">Trash</span></h1>
+  <p>The world's first upcycled marketplace. Trade your trash for one-of-a-kind treasures. Every purchase is a win for the planet.</p>
+  <div class="hero-actions">
+    <a href="/shop" class="btn btn-primary">🛍️ Shop Now</a>
+    <a href="/orders" class="btn btn-outline">📦 My Orders</a>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-value">12+</div>
+    <div class="stat-label">Unique Items</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value" th:text="${user.trashBalance} + 'kg'">500kg</div>
+    <div class="stat-label">Your Trash Balance</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">100%</div>
+    <div class="stat-label">Upcycled</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">0 🌍</div>
+    <div class="stat-label">Carbon Footprint</div>
+  </div>
+</div>
+
+<!-- FEATURED ITEMS -->
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title">Featured <span>Finds</span></h2>
+    <a href="/shop" class="btn btn-outline btn-sm">View All →</a>
+  </div>
+  <div class="product-grid">
+    <div th:each="item : ${featuredItems}" class="product-card">
+      <div class="product-img-wrap">
+        <img th:src="${item.imageUrl}" th:alt="${item.name}" loading="lazy"
+             onerror="this.src='https://via.placeholder.com/400x200/111118/39ff14?text=♻️+Item'" />
+        <span th:if="${item.inStock}" class="product-badge">In Stock</span>
+        <span th:unless="${item.inStock}" class="product-badge out-of-stock">Sold Out</span>
+      </div>
+      <div class="product-body">
+        <div class="product-category" th:text="${item.category}">Category</div>
+        <h3 class="product-name" th:text="${item.name}">Item Name</h3>
+        <p class="product-desc" th:text="${item.description}">Description</p>
+        <div class="product-footer">
+          <div class="product-price">
+            <span th:text="${item.trashPrice} + 'kg'">5kg</span>
+            <small>of trash</small>
+          </div>
+          <button class="add-to-cart-btn"
+                  th:disabled="${!item.inStock}"
+                  th:attr="data-item-id=${item.id}"
+                  onclick="addToCart(this)">
+            + Add
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p>🗑️ <span>TrashStore</span> — Turning waste into worth · Built with Spring Boot & ♻️</p>
+</footer>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<script th:inline="javascript">
+  function addToCart(btn) {
+    const itemId = btn.dataset.itemId;
+    fetch(`/api/cart/add/${itemId}`, { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          showToast('✅ Added to cart!', 'success');
+          const badge = document.getElementById('cart-badge');
+          badge.textContent = data.cartCount;
+          badge.style.display = 'flex';
+        } else {
+          showToast('❌ ' + data.error, 'error');
+        }
+      }).catch(() => showToast('❌ Network error', 'error'));
+  }
+
+  function showToast(msg, type) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
+  }
+</script>
+</body>
+</html>
